@@ -1,0 +1,9 @@
+{
+    "recommendations": [
+        "junstyle.php-cs-fixer",
+        "devsense.composer-php-vscode",
+        "devsense.intelli-php-vscode",
+        "amiralizadeh9480.laravel-extra-intellisense",
+        "devsense.phptools-vscode"
+    ]
+}

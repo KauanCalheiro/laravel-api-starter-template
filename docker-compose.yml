@@ -1,0 +1,17 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - ./storage/app:/var/www/html/storage/app
+      - ./.env:/var/www/html/.env:ro
+    ports:
+      - "80:8000"
+    networks:
+      - laravel
+
+networks:
+  laravel:
+    driver: bridge

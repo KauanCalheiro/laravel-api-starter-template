@@ -1,0 +1,164 @@
+[
+    {
+        "sigla": "RN",
+        "ref_pais": 10,
+        "nome": "RIO GRANDE DO NORTE",
+        "id": 25
+    },
+    {
+        "sigla": "AC",
+        "ref_pais": 10,
+        "nome": "ACRE",
+        "id": 85
+    },
+    {
+        "sigla": "AL",
+        "ref_pais": 10,
+        "nome": "ALAGOAS",
+        "id": 86
+    },
+    {
+        "sigla": "AP",
+        "ref_pais": 10,
+        "nome": "AMAPÁ",
+        "id": 87
+    },
+    {
+        "sigla": "BA",
+        "ref_pais": 10,
+        "nome": "BAHIA",
+        "id": 120
+    },
+    {
+        "sigla": "CE",
+        "ref_pais": 10,
+        "nome": "CEARÁ",
+        "id": 108
+    },
+    {
+        "sigla": "DF",
+        "ref_pais": 10,
+        "nome": "DISTRITO FEDERAL",
+        "id": 109
+    },
+    {
+        "sigla": "GO",
+        "ref_pais": 10,
+        "nome": "GOIÁS",
+        "id": 82
+    },
+    {
+        "sigla": "MT",
+        "ref_pais": 10,
+        "nome": "MATO GROSSO",
+        "id": 98
+    },
+    {
+        "sigla": "MS",
+        "ref_pais": 10,
+        "nome": "MATO GROSSO DO SUL",
+        "id": 118
+    },
+    {
+        "sigla": "MG",
+        "ref_pais": 10,
+        "nome": "MINAS GERAIS",
+        "id": 88
+    },
+    {
+        "sigla": "PA",
+        "ref_pais": 10,
+        "nome": "PARÁ",
+        "id": 80
+    },
+    {
+        "sigla": "PR",
+        "ref_pais": 10,
+        "nome": "PARANÁ",
+        "id": 90
+    },
+    {
+        "sigla": "RS",
+        "ref_pais": 10,
+        "nome": "RIO GRANDE DO SUL",
+        "id": 81
+    },
+    {
+        "sigla": "SC",
+        "ref_pais": 10,
+        "nome": "SANTA CATARINA",
+        "id": 83
+    },
+    {
+        "sigla": "SP",
+        "ref_pais": 10,
+        "nome": "SÃO PAULO",
+        "id": 93
+    },
+    {
+        "sigla": "RJ",
+        "ref_pais": 10,
+        "nome": "RIO DE JANEIRO",
+        "id": 24
+    },
+    {
+        "sigla": "PE",
+        "ref_pais": 10,
+        "nome": "PERNAMBUCO",
+        "id": 18
+    },
+    {
+        "sigla": "MA",
+        "ref_pais": 10,
+        "nome": "MARANHÃO",
+        "id": 13
+    },
+    {
+        "sigla": "ES",
+        "ref_pais": 10,
+        "nome": "ESPÍRITO SANTO",
+        "id": 10
+    },
+    {
+        "sigla": "PB",
+        "ref_pais": 10,
+        "nome": "PARAÍBA",
+        "id": 17
+    },
+    {
+        "sigla": "RO",
+        "ref_pais": 10,
+        "nome": "RONDÔNIA",
+        "id": 26
+    },
+    {
+        "sigla": "PI",
+        "ref_pais": 10,
+        "nome": "PIAUÍ",
+        "id": 19
+    },
+    {
+        "sigla": "AM",
+        "ref_pais": 10,
+        "nome": "AMAZONAS",
+        "id": 2
+    },
+    {
+        "sigla": "TO",
+        "ref_pais": 10,
+        "nome": "TOCANTINS",
+        "id": 33
+    },
+    {
+        "sigla": "SE",
+        "ref_pais": 10,
+        "nome": "SERGIPE",
+        "id": 30
+    },
+    {
+        "sigla": "RR",
+        "ref_pais": 10,
+        "nome": "RORAIMA",
+        "id": 28
+    }
+]

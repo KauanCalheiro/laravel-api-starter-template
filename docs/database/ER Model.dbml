@@ -1,0 +1,177 @@
+// Docs: https://dbml.dbdiagram.io/docs
+// Web-Editor: https://dbdiagram.io/home
+
+// RELATIONS:
+// <: one-to-many. E.g: users.id < posts.user_id
+// >: many-to-one. E.g: posts.user_id > users.id
+// -: one-to-one. E.g: users.id - user_infos.user_id
+// <>: many-to-many. E.g: authors.id <> books.id
+
+Table "ext_turma" {
+  "ref_turma" integer [not null]
+  "ementa" text
+  "dt_encerramento_turma" timestamp
+  "ref_disciplina" integer
+  "disciplina" text
+  "carga_horaria_extensao" integer
+  "carga_horaria" double
+  "ref_curriculo" integer
+  "curriculo" text
+  "ref_periodo" varchar(10)
+  "dt_inicial_periodo" date
+  "dt_final_periodo" date
+  "ref_coordenador" integer
+  "coordenador" varchar(100)
+  "fl_ativa" boolean
+  "professores" jsonb
+  "dias_semana" jsonb
+}
+
+Table "ext_turma_planejamento_acao" {
+  "id" integer [not null]
+  "ref_planejamento" integer [not null]
+  "ref_turma" integer [not null]
+}
+
+Ref: "ext_turma_planejamento_acao"."ref_turma" > "ext_turma"."ref_turma"
+Ref: "ext_turma_planejamento_acao"."ref_planejamento" > "ext_planejamento_acao"."id"
+
+Table "ext_planejamento_acao" {
+  "id" integer [not null]
+  "titulo" text [not null]
+  "planejamento" text [not null]
+}
+
+Table "ext_acao" {
+  "id" integer [not null]
+
+  "ref_planejamento" integer [not null]
+  "ref_programa_extensao" integer [not null]
+  "ref_projeto_extensao" integer
+  "ref_cidade" integer [not null]
+
+  "titulo" text [not null]
+  "descricao" text [not null]
+
+  "territorio_educativo" text [not null]
+  "nome_responsavel_territorio_educativo" text
+  "email_responsavel_territorio_educativo" text
+  "telefone_responsavel_territorio_educativo" text
+
+  "dt_encerramento" date
+  "dt_aprovada_professor" date
+  "dt_recusada_professor" date
+
+  "feedback_recusado" text
+  "feedback_encerramento" text
+}
+
+Ref: "ext_acao"."ref_cidade" - "bas_cidade"."id"
+Ref: "ext_acao"."ref_planejamento" > "ext_planejamento_acao"."id"
+Ref: "ext_acao"."ref_programa_extensao" - "ext_programa_extensao"."id"
+Ref: "ext_acao"."ref_projeto_extensao" - "ext_projeto_extensao"."id"
+
+Table "ext_ods_acao" {
+  "id" integer [not null]
+  "ref_ods" integer [not null]
+  "ref_acao" integer [not null]
+}
+
+Ref: "ext_ods_acao"."ref_acao" > "ext_acao"."id"
+Ref: "ext_ods_acao"."ref_ods" > "ext_ods"."id"
+
+Table "ext_ods" {
+  "id" integer [not null]
+  "descricao" text [not null]
+  "sucinto" text [not null]
+}
+
+Table "ext_evidencia" {
+  "id" integer [not null]
+  "ref_acao" integer [not null]
+
+  "titulo" text
+  "descricao" text [not null]
+  "qtde_participantes_comunidade" integer
+  "feedback" text
+
+  "dt_evidencia" date [not null]
+  "dt_avaliada_professor" date
+}
+
+Ref: "ext_evidencia"."ref_acao" > "ext_acao"."id"
+
+Table "ext_integrante_evidencia" {
+  "id" integer [not null]
+  "ref_evidencia" integer [not null]
+  "ref_pessoa" integer [not null]
+}
+
+Ref: "ext_integrante_evidencia"."ref_pessoa" > "users"."id"
+
+Ref: "ext_integrante_evidencia"."ref_evidencia" > "ext_evidencia"."id"
+
+Table "ext_integrante_acao" {
+  "id" integer [not null]
+  "ref_pessoa" integer [not null]
+  "ref_acao" integer [not null]
+}
+
+Ref: "ext_integrante_acao"."ref_pessoa" > "users"."id"
+
+Ref: "ext_integrante_acao"."ref_acao" > "ext_acao"."id"
+
+Table "ext_anexo_evidencia" {
+  "id" integer [not null]
+  "nome" text [not null]
+  "atributos" jsonb [not null]
+  "ref_evidencia" integer [not null]
+}
+
+Ref: "ext_anexo_evidencia"."ref_evidencia" > "ext_evidencia"."id"
+
+Table "bas_cidade" {
+  "id" integer [not null]
+  "nome" text [not null]
+  "ref_estado" integer [not null]
+}
+
+Ref: "bas_cidade"."ref_estado" - "bas_estado"."id"
+
+Table "bas_estado" {
+  "id" integer [not null]
+  "nome" text [not null]
+  "sigla" text [not null]
+  "ref_pais" integer [not null]
+}
+
+Ref: "bas_estado"."ref_pais" - "bas_pais"."id"
+
+Table "bas_pais" {
+  "id" integer [not null]
+  "nome" text [not null]
+  "sigla" text [not null]
+}
+
+Table "ext_projeto_extensao" {
+  "id" integer [not null]
+  "descricao" text [not null]
+  "ref_coordenador" integer
+  "dt_inicial" date
+  "dt_final" date
+}
+
+Ref: "ext_projeto_extensao"."ref_coordenador" - "users"."id"
+
+Table "ext_programa_extensao" {
+  "id" integer [not null]
+  "nome" text [not null]
+  "descricao" text [not null]
+  "fl_ativo" boolean [not null, default: `true`]
+}
+
+Table "users" {
+  "id" integer [not null]
+  "name" text [not null]
+  "email" text [not null]
+}
