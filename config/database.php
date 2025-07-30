@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'extensao'),
+    'default' => env('DB_CONNECTION', 'main'),
 
     /*
     |--------------------------------------------------------------------------
@@ -38,7 +38,7 @@ return [
             'synchronous'             => null,
         ],
 
-        'extensao' => [
+        'main' => [
             'driver'         => 'pgsql',
             'url'            => env('DB_URL'),
             'host'           => env('DB_HOST', '127.0.0.1'),
@@ -47,21 +47,6 @@ return [
             'username'       => env('DB_USERNAME', 'root'),
             'password'       => env('DB_PASSWORD', ''),
             'charset'        => env('DB_CHARSET', 'utf8'),
-            'prefix'         => '',
-            'prefix_indexes' => true,
-            'search_path'    => 'public',
-            'sslmode'        => 'prefer',
-        ],
-
-        'academico' => [
-            'driver'         => 'pgsql',
-            'url'            => '',
-            'host'           => env('ACADEMICO_DB_HOST', ''),
-            'port'           => env('ACADEMICO_DB_PORT', ''),
-            'database'       => env('ACADEMICO_DB_DATABASE', ''),
-            'username'       => env('ACADEMICO_DB_USERNAME', ''),
-            'password'       => env('ACADEMICO_DB_PASSWORD', ''),
-            'charset'        => env('ACADEMICO_DB_CHARSET', ''),
             'prefix'         => '',
             'prefix_indexes' => true,
             'search_path'    => 'public',
