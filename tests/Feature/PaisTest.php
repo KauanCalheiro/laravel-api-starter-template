@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Models\Pais;
+use App\Models\Country;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Tests\Contracts\CrudTestContract;
@@ -23,7 +23,7 @@ class PaisTest extends TestCase implements CrudTestContract, SearchTestContract
     {
         parent::setUp();
 
-        $this->model = new Pais();
+        $this->model = new Country();
         $this->route = 'pais';
         $this->table = $this->model->getTable();
         $this->user  = User::role('admin')->first();
@@ -132,7 +132,7 @@ class PaisTest extends TestCase implements CrudTestContract, SearchTestContract
             'sigla' => 'TP',
         ];
 
-        $pais = Pais::firstOrCreate(
+        $pais = Country::firstOrCreate(
             $data,
         );
 
@@ -148,7 +148,7 @@ class PaisTest extends TestCase implements CrudTestContract, SearchTestContract
     {
         $data = ['nome' => 'URUGUAY', 'sigla' => 'TOO_LONG'];
 
-        $pais = Pais::firstOrCreate(
+        $pais = Country::firstOrCreate(
             ['nome' => 'URUGUAY', 'sigla' => 'URY'],
         );
 
@@ -161,7 +161,7 @@ class PaisTest extends TestCase implements CrudTestContract, SearchTestContract
 
     public function test_deleta_registro()
     {
-        $pais = Pais::first();
+        $pais = Country::first();
 
         if (!$pais) {
             $this->markTestSkipped('No Pais records found.');

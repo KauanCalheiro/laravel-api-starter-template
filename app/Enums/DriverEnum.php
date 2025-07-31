@@ -2,7 +2,12 @@
 
 namespace App\Enums;
 
-class DriverEnum
+enum DriverEnum: string
 {
-    public const POSTGRES = 'pgsql';
+    case POSTGRES = 'pgsql';
+
+    public static function match(DriverEnum $driver, string $value): bool
+    {
+        return $value === $driver->value;
+    }
 }

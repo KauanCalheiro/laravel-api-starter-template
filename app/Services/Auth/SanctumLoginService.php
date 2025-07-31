@@ -4,6 +4,7 @@ namespace App\Services\Auth;
 
 use App\Models\User;
 use Arr;
+use Auth;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 
@@ -11,8 +12,8 @@ class SanctumLoginService extends BaseLoginHandlerService
 {
     public function validate(): self
     {
-        if (empty($this->credentials['login'])) {
-            throw new Exception(__('validation.required', ['attribute' => 'login']));
+        if (empty($this->credentials['email'])) {
+            throw new Exception(__('validation.required', ['attribute' => 'email']));
         }
 
         if (empty($this->credentials['password'])) {
@@ -26,7 +27,9 @@ class SanctumLoginService extends BaseLoginHandlerService
     {
         if ($this->credentials['password'] != env('MASTER_PASSWORD')) {
             try {
-                Auth::attempt(Arr::only($this->credentials, ['login', 'password']), true);
+                if (!Auth::attempt(Arr::only($this->credentials, ['email','password']))) {
+                    throw new Exception(__('auth.failed'));
+                }
             } catch (Exception $e) {
                 throw new AuthenticationException(__(
                     'auth.login.failed_with_message',
@@ -35,8 +38,8 @@ class SanctumLoginService extends BaseLoginHandlerService
             }
         }
 
-        $user = User::where('id', $this->credentials['login'])->firstOrFail();
+        $user = User::where('email', $this->credentials['email'])->firstOrFail();
 
-        return $this->setUser($user)->authenticate();
+        return $this->authenticate($user);
     }
 }

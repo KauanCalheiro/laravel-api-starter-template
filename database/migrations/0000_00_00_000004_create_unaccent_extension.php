@@ -6,7 +6,7 @@ use Illuminate\Database\Migrations\Migration;
 return new class () extends Migration {
     public function up()
     {
-        if (DB::getDriverName() !== DriverEnum::POSTGRES) {
+        if (!DriverEnum::match(DriverEnum::POSTGRES, DB::getDriverName())) {
             return;
         }
 
@@ -15,7 +15,7 @@ return new class () extends Migration {
 
     public function down()
     {
-        if (DB::getDriverName() !== DriverEnum::POSTGRES) {
+        if (!DriverEnum::match(DriverEnum::POSTGRES, DB::getDriverName())) {
             return;
         }
 

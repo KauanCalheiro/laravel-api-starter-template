@@ -9,12 +9,10 @@ use Exception;
 abstract class BaseLoginHandlerService implements LoginHandlerContract
 {
     protected array $credentials;
-    protected ?User $authenticatable;
 
     public function __construct($credentials)
     {
-        $this->credentials     = $credentials;
-        $this->authenticatable = null;
+        $this->credentials = $credentials;
     }
 
     final public function handleLogin(): array
@@ -22,20 +20,14 @@ abstract class BaseLoginHandlerService implements LoginHandlerContract
         return $this->validate()->login();
     }
 
-    final protected function setUser(User $authenticatable): self
+    final protected function authenticate(User $authenticatable): array
     {
-        $this->authenticatable = $authenticatable;
-        return $this;
-    }
-
-    final protected function authenticate(): array
-    {
-        if (empty($this->authenticatable)) {
+        if (empty($authenticatable)) {
             throw new Exception(__('auth.login.user_not_found'));
         }
 
         return [
-            'token' => $this->authenticatable->createToken('auth_token', ['*'])->plainTextToken,
+            'token' => $authenticatable->createToken('auth_token', ['*'])->plainTextToken,
         ];
     }
 }

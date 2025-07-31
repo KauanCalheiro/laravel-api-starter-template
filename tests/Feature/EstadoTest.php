@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\Estado;
-use App\Models\Pais;
+use App\Models\Country;
+use App\Models\State;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Tests\Contracts\CrudTestContract;
@@ -28,7 +28,7 @@ class EstadoTest extends TestCase implements
     {
         parent::setUp();
 
-        $this->model = new Estado();
+        $this->model = new State();
         $this->route = 'estado';
         $this->table = $this->model->getTable();
         $this->user  = User::role('admin')->first();
@@ -133,7 +133,7 @@ class EstadoTest extends TestCase implements
 
     public function test_cria_registro()
     {
-        $pais = Pais::first();
+        $pais = Country::first();
 
         if (!$pais) {
             $this->markTestSkipped('No Pais records found.');
@@ -170,7 +170,7 @@ class EstadoTest extends TestCase implements
 
     public function test_atualiza_registro()
     {
-        $pais = Pais::first();
+        $pais = Country::first();
 
         if (!$pais) {
             $this->markTestSkipped('No Pais records found.');
@@ -182,7 +182,7 @@ class EstadoTest extends TestCase implements
             'ref_pais' => (int)$pais->id,
         ];
 
-        $estado = Estado::firstOrCreate(
+        $estado = State::firstOrCreate(
             $data,
         );
 
@@ -200,7 +200,7 @@ class EstadoTest extends TestCase implements
 
     public function test_erro_atualiza_registro_com_campos_incorretos()
     {
-        $pais = Pais::first();
+        $pais = Country::first();
 
         if (!$pais) {
             $this->markTestSkipped('No Pais records found.');
@@ -212,7 +212,7 @@ class EstadoTest extends TestCase implements
             'ref_pais' => (int)$pais->id,
         ];
 
-        $estado = Estado::firstOrCreate(
+        $estado = State::firstOrCreate(
             $data,
         );
 
@@ -231,7 +231,7 @@ class EstadoTest extends TestCase implements
 
     public function test_deleta_registro()
     {
-        $estado = Estado::first();
+        $estado = State::first();
 
         if (!$estado) {
             $this->markTestSkipped('No Estado records found.');

@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Rules\PhoneNumber;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
 
@@ -20,6 +21,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        JsonResource::withoutWrapping();
+
         Validator::extend(
             'phone_number',
             function ($attribute, $value, $parameters, $validator) {

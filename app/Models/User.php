@@ -2,14 +2,13 @@
 
 namespace App\Models;
 
-use App\Enums\ConnectionEnum;
-use App\Traits\HasRoles;
-use App\Traits\RoleAssignmentRules;
+use App\Traits\LogsAll;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use MichaelAChrisco\ReadOnly\ReadOnlyTrait;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
@@ -17,37 +16,26 @@ class User extends Authenticatable
     use HasFactory;
     use Notifiable;
     use HasRoles;
-    use ReadOnlyTrait;
-    use RoleAssignmentRules;
+    use LogsAll;
 
     protected $table = 'users';
 
-    protected $connection = ConnectionEnum::MAIN;
+    protected function password(): Attribute
+    {
+        return Attribute::make(
+            set: fn ($value) => $this->shouldHash($value) ? bcrypt($value) : $value,
+        );
+    }
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
+    protected function shouldHash($value): bool
+    {
+        return !password_get_info($value)['algo'];
+    }
+
     protected $fillable = [
         'id',
         'name',
         'email',
+        'password',
     ];
-
-    /**
-     * Accessor for the user's roles.
-     */
-    public function getRolesListAttribute(): array
-    {
-        return $this->roles->pluck('name')->toArray();
-    }
-
-    /**
-     * Accessor for the user's permissions.
-     */
-    public function getPermissionsListAttribute(): array
-    {
-        return $this->getAllPermissions()->pluck('name')->toArray();
-    }
 }

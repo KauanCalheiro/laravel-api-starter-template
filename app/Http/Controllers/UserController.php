@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\Spatie\QueryBuilder\Filters\Search\SearchFilter;
-use App\Http\Requests\Api\V1\UserRoleRequest;
+use App\Http\Requests\UserRoleRequest;
 use App\Models\User;
 use App\Services\UserService;
 use Spatie\QueryBuilder\AllowedFilter;

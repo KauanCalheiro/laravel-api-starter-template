@@ -22,3 +22,6 @@ yarn-error.log
 /.nova
 /.zed
 .php-cs-fixer.cache
+**/caddy
+frankenphp
+frankenphp-worker.php

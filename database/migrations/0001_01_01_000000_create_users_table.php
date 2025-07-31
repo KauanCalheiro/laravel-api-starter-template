@@ -1,22 +1,28 @@
 <?php
 
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class () extends Migration {
-    /**
-     * Run the migrations.
-     */
+    protected User $user;
+
+    public function __construct()
+    {
+        $this->user = new User();
+    }
+
     public function up(): void
     {
-        Schema::create('user', function (Blueprint $table) {
-            $table->increments('id');
+        Schema::create($this->user->getTable(), function (Blueprint $table) {
+            $table->id();
             $table->string('name');
-            $table->string('email');
+            $table->string('email')->unique();
+            $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->rememberToken();
             $table->timestamps();
-            $table->softDeletes();
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
@@ -35,12 +41,9 @@ return new class () extends Migration {
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        DB::statement('DROP FOREIGN TABLE IF EXISTS foreign_table_bas_pessoas');
+        Schema::dropIfExists($this->user->getTable());
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('sessions');
     }

@@ -2,23 +2,23 @@
 
 namespace App\Providers;
 
-use App\Models\Cidade;
-use App\Models\Estado;
-use App\Models\Pais;
+use App\Models\City;
+use App\Models\Country;
+use App\Models\State;
 use App\Models\User;
-use App\Policies\CidadePolicy;
-use App\Policies\EstadoPolicy;
-use App\Policies\PaisPolicy;
+use App\Policies\CityPolicy;
+use App\Policies\CountryPolicy;
+use App\Policies\StatePolicy;
 use App\Policies\UserPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
 {
     protected $policies = [
-        User::class   => UserPolicy::class,
-        Pais::class   => PaisPolicy::class,
-        Estado::class => EstadoPolicy::class,
-        Cidade::class => CidadePolicy::class,
+        User::class    => UserPolicy::class,
+        Country::class => CountryPolicy::class,
+        State::class   => StatePolicy::class,
+        City::class    => CityPolicy::class,
     ];
 
     public function boot()

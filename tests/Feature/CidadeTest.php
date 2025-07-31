@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use App\Models\Cidade;
-use App\Models\Estado;
+use App\Models\City;
+use App\Models\State;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Tests\Contracts\CrudTestContract;
@@ -28,7 +28,7 @@ class CidadeTest extends TestCase implements
     {
         parent::setUp();
 
-        $this->model = new Cidade();
+        $this->model = new City();
         $this->route = 'cidade';
         $this->table = $this->model->getTable();
         $this->user  = User::role('admin')->first();
@@ -119,7 +119,7 @@ class CidadeTest extends TestCase implements
 
     public function test_cria_registro()
     {
-        $estado = Estado::first();
+        $estado = State::first();
 
         if (!$estado) {
             $this->markTestSkipped('No Estado records found.');
@@ -153,7 +153,7 @@ class CidadeTest extends TestCase implements
 
     public function test_atualiza_registro()
     {
-        $estado = Estado::first();
+        $estado = State::first();
 
         if (!$estado) {
             $this->markTestSkipped('No Estado records found.');
@@ -164,7 +164,7 @@ class CidadeTest extends TestCase implements
             'ref_estado' => (int)$estado->id,
         ];
 
-        $estado = Cidade::firstOrCreate(
+        $estado = City::firstOrCreate(
             $data,
         );
 
@@ -182,7 +182,7 @@ class CidadeTest extends TestCase implements
 
     public function test_erro_atualiza_registro_com_campos_incorretos()
     {
-        $estado = Estado::first();
+        $estado = State::first();
 
         if (!$estado) {
             $this->markTestSkipped('No Estado records found.');
@@ -193,7 +193,7 @@ class CidadeTest extends TestCase implements
             'ref_estado' => (int)$estado->id,
         ];
 
-        $estado = Cidade::firstOrCreate(
+        $estado = City::firstOrCreate(
             $data,
         );
 
@@ -212,7 +212,7 @@ class CidadeTest extends TestCase implements
 
     public function test_deleta_registro()
     {
-        $cidade = Cidade::first();
+        $cidade = City::first();
 
         if (!$cidade) {
             $this->markTestSkipped('No Cidade records found.');
