@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\TelescopeController;
+use App\Http\Controllers\Web\TelescopeController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('web')->group(function () {
