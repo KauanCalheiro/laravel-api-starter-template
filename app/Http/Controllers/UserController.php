@@ -3,9 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\Spatie\QueryBuilder\Filters\Search\SearchFilter;
-use App\Http\Requests\UserRoleRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
-use App\Services\UserService;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
@@ -39,41 +38,19 @@ class UserController extends Controller
                 'name',
                 'email',
             ])
-            ->jsonPaginate()
-            ->toArray();
+            ->jsonPaginate();
 
-        foreach ($users['data'] as &$user) {
-            if (isset($user['roles'])) {
-                $user['roles'] = collect($user['roles'])->pluck('name')->toArray();
-            }
-        }
-
-        return $users;
+        return UserResource::collection($users);
     }
 
     public function show(User $user)
     {
         $user = QueryBuilder::for(User::class)
-            ->allowedIncludes(['roles'])
+            ->allowedIncludes([
+                'roles',
+            ])
             ->findOrFail($user->id);
 
-        $user = $user->toArray();
-
-        if (isset($user['roles'])) {
-            $user['roles'] = collect($user['roles'])->pluck('name')->toArray();
-        }
-
-        return $user;
-    }
-
-    public function syncRoles(UserRoleRequest $request, User $user)
-    {
-        UserService::make()->syncRoles(
-            auth()->user(),
-            $user,
-            $request->roles,
-        );
-
-        return $user->load(['roles']);
+        return new UserResource($user);
     }
 }
