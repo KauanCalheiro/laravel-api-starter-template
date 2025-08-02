@@ -2,9 +2,9 @@
 
 namespace App\Providers;
 
-use App\Models\City;
-use App\Models\Country;
-use App\Models\State;
+use App\Models\Location\City;
+use App\Models\Location\Country;
+use App\Models\Location\State;
 use App\Models\User;
 use App\Policies\CityPolicy;
 use App\Policies\CountryPolicy;
