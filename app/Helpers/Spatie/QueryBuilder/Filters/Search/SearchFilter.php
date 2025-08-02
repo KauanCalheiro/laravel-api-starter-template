@@ -44,8 +44,8 @@ class SearchFilter implements Filter
     protected function resolveStrategy(string $driver): SearchStrategyInterface
     {
         return match ($driver) {
-            DriverEnum::POSTGRES => new PostgresSearchStrategy(),
-            default              => throw new RuntimeException(__(
+            DriverEnum::POSTGRES->value => new PostgresSearchStrategy(),
+            default                     => throw new RuntimeException(__(
                 'database.unsupported.driver',
                 ['driver' => $driver],
             )),
