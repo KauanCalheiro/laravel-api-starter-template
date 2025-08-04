@@ -9,6 +9,10 @@ enum PermissionEnum: string
     case UPDATE_USER = 'user.update';
     case DELETE_USER = 'user.delete';
 
+    case ASSIGN_USER_ROLE = 'user.assign.role';
+    case REVOKE_USER_ROLE = 'user.revoke.role';
+    case SYNC_USER_ROLE   = 'user.sync.role';
+
     case CREATE_COUNTRY = 'country.create';
     case READ_COUNTRY   = 'country.read';
     case UPDATE_COUNTRY = 'country.update';
