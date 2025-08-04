@@ -151,16 +151,16 @@ return [
         'string'  => 'O campo :attribute deve ser :size caracteres.',
         'array'   => 'O campo :attribute deve conter :size itens.',
     ],
-    'starts_with' => 'O campo :attribute deve começar com um dos seguintes valores: :values',
-    'string'      => 'O campo :attribute deve ser uma string.',
-    'timezone'    => 'O campo :attribute deve ser uma zona válida.',
-    'unique'      => 'O campo :attribute já está sendo utilizado.',
-    'uploaded'    => 'Ocorreu uma falha no upload do campo :attribute.',
-    'uppercase'   => 'O campo :attribute deve conter letras maiúsculas.',
-    'url'         => 'O campo :attribute tem um formato inválido.',
-    'ulid'        => 'O campo :attribute deve ser um ULID válido.',
-    'uuid'        => 'O campo :attribute deve ser um UUID válido.',
-    'phone_number'=> 'O campo :attribute deve corresponder ao formato :format.',
+    'starts_with'      => 'O campo :attribute deve começar com um dos seguintes valores: :values',
+    'string'           => 'O campo :attribute deve ser uma string.',
+    'timezone'         => 'O campo :attribute deve ser uma zona válida.',
+    'unique'           => 'O campo :attribute já está sendo utilizado.',
+    'uploaded'         => 'Ocorreu uma falha no upload do campo :attribute.',
+    'uppercase'        => 'O campo :attribute deve conter letras maiúsculas.',
+    'url'              => 'O campo :attribute tem um formato inválido.',
+    'ulid'             => 'O campo :attribute deve ser um ULID válido.',
+    'uuid'             => 'O campo :attribute deve ser um UUID válido.',
+    'phone_number'     => 'O campo :attribute deve corresponder ao formato :format.',
     'empty_parameters' => 'Os parâmetros não podem estar vazios.',
 
     /*
@@ -178,6 +178,7 @@ return [
         'attribute-name' => [
             'rule-name' => 'custom-message',
         ],
+        'args_count' => 'O método espera :min ou :max argumentos: (:example_min) ou (:example_max).',
     ],
 
     /*

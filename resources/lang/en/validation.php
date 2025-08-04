@@ -150,16 +150,16 @@ return [
         'numeric' => 'The :attribute field must be :size.',
         'string'  => 'The :attribute field must be :size characters.',
     ],
-    'starts_with' => 'The :attribute field must start with one of the following: :values.',
-    'string'      => 'The :attribute field must be a string.',
-    'timezone'    => 'The :attribute field must be a valid timezone.',
-    'unique'      => 'The :attribute has already been taken.',
-    'uploaded'    => 'The :attribute failed to upload.',
-    'uppercase'   => 'The :attribute field must be uppercase.',
-    'url'         => 'The :attribute field must be a valid URL.',
-    'ulid'        => 'The :attribute field must be a valid ULID.',
-    'uuid'        => 'The :attribute field must be a valid UUID.',
-    'phone_number'=> 'The :attribute field must match the format :format.',
+    'starts_with'      => 'The :attribute field must start with one of the following: :values.',
+    'string'           => 'The :attribute field must be a string.',
+    'timezone'         => 'The :attribute field must be a valid timezone.',
+    'unique'           => 'The :attribute has already been taken.',
+    'uploaded'         => 'The :attribute failed to upload.',
+    'uppercase'        => 'The :attribute field must be uppercase.',
+    'url'              => 'The :attribute field must be a valid URL.',
+    'ulid'             => 'The :attribute field must be a valid ULID.',
+    'uuid'             => 'The :attribute field must be a valid UUID.',
+    'phone_number'     => 'The :attribute field must match the format :format.',
     'empty_parameters' => 'The parameters cannot be empty.',
 
     /*
@@ -177,6 +177,7 @@ return [
         'attribute-name' => [
             'rule-name' => 'custom-message',
         ],
+        'args_count' => 'The method expects :min or :max arguments: (:example_min) or (:example_max).',
     ],
 
     /*
