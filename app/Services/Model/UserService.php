@@ -3,7 +3,6 @@
 namespace App\Services\Model;
 
 use App\Models\User;
-use Illuminate\Auth\Access\AuthorizationException;
 
 class UserService
 {
@@ -32,39 +31,21 @@ class UserService
         return $this;
     }
 
-    public function syncRoles(User $requesterUser, User $targetUser, array $newRoles): self
+    public function syncRoles(array $newRoles): self
     {
-        $notAllowedRoles = array_filter($newRoles, fn ($role) => !$requesterUser->canAssignRole($role));
+        $this->user->syncRoles($newRoles);
+        return $this;
+    }
 
-        if ($notAllowedRoles) {
-            throw new AuthorizationException(__('authorization.role.assign.not_allowed', [
-                'role' => implode(', ', $notAllowedRoles),
-            ]));
-        }
+    public function assignRoles(array $newRoles): self
+    {
+        $this->user->assignRole($newRoles);
+        return $this;
+    }
 
-        $isSameUser = $requesterUser->id == $targetUser->id;
-
-        if ($isSameUser) {
-            $willEraseStrongestRole = !in_array($requesterUser->getStrongestRole(), $newRoles);
-
-            if ($willEraseStrongestRole) {
-                throw new AuthorizationException(__('authorization.role.remove.strongest.not_allowed', [
-                    'role' => $requesterUser->getStrongestRole(),
-                ]));
-            }
-        }
-
-        $targetUserRoles = $targetUser->getRoleNames()->toArray();
-
-        $highPrivilegeRolesToPreserve = array_filter(
-            $targetUserRoles,
-            fn ($role) => !$requesterUser->canAssignRole($role),
-        );
-
-        $finalRoles = array_unique(array_merge($newRoles, $highPrivilegeRolesToPreserve));
-
-        $targetUser->syncRoles($finalRoles);
-
+    public function revokeRoles(array $newRoles): self
+    {
+        $this->user->removeRole($newRoles);
         return $this;
     }
 }

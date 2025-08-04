@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\Spatie\QueryBuilder\Filters\Search\SearchFilter;
+use App\Http\Requests\AssignRolesUserRequest;
+use App\Http\Requests\RevokeRolesUserRequest;
 use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\SyncRolesUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
@@ -74,5 +77,35 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         return $this->empty(fn () => $user->delete());
+    }
+
+    public function assignRoles(AssignRolesUserRequest $request, User $user)
+    {
+        $service = UserService::make($user)->assignRoles($request->validated());
+        $service->user->load('roles');
+
+        return new UserResource(
+            $service->user,
+        );
+    }
+
+    public function revokeRoles(RevokeRolesUserRequest $request, User $user)
+    {
+        $service = UserService::make($user)->revokeRoles($request->validated());
+        $service->user->load('roles');
+
+        return new UserResource(
+            $service->user,
+        );
+    }
+
+    public function syncRoles(SyncRolesUserRequest $request, User $user)
+    {
+        $service = UserService::make($user)->syncRoles($request->validated());
+        $service->user->load('roles');
+
+        return new UserResource(
+            $service->user,
+        );
     }
 }

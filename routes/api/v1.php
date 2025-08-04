@@ -17,5 +17,9 @@ Route::prefix('v1')->group(function () {
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::apiResource('user', UserController::class)->names('user');
+
+        Route::post('user/{user}/roles/assign', [UserController::class, 'assignRoles'])->name('user.roles.assign');
+        Route::post('user/{user}/roles/revoke', [UserController::class, 'revokeRoles'])->name('user.roles.revoke');
+        Route::post('user/{user}/roles/sync', [UserController::class, 'syncRoles'])->name('user.roles.sync');
     });
 });
