@@ -37,4 +37,19 @@ class UserPolicy
 
         return !$selfDelete || $canDelete;
     }
+
+    public function assignRoles(User $authenticated, User $user): bool
+    {
+        return $authenticated->can(PermissionEnum::ASSIGN_USER_ROLE);
+    }
+
+    public function revokeRoles(User $authenticated, User $user): bool
+    {
+        return $authenticated->can(PermissionEnum::REVOKE_USER_ROLE);
+    }
+
+    public function syncRoles(User $authenticated, User $user): bool
+    {
+        return $authenticated->can(PermissionEnum::SYNC_USER_ROLE);
+    }
 }

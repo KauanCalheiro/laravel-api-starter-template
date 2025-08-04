@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\AuthorizeMethod;
 use App\Helpers\Spatie\QueryBuilder\Filters\Search\SearchFilter;
 use App\Http\Requests\AssignRolesUserRequest;
 use App\Http\Requests\RevokeRolesUserRequest;
@@ -19,6 +20,11 @@ class UserController extends Controller
     public function __construct()
     {
         $this->authorizeResource(User::class, 'user');
+        $this->authorizeMethods([
+            new AuthorizeMethod('assignRoles', 'user'),
+            new AuthorizeMethod('revokeRoles', 'user'),
+            new AuthorizeMethod('syncRoles', 'user'),
+        ]);
     }
 
     public function index()
