@@ -18,7 +18,7 @@ class CountryPolicy
 
     public function viewAny(User $user)
     {
-        if ($user->can(PermissionEnum::READ_PAIS)) {
+        if ($user->can(PermissionEnum::READ_COUNTRY)) {
             return Response::allow();
         }
 
@@ -30,7 +30,7 @@ class CountryPolicy
 
     public function view(User $user, Country $pais)
     {
-        if ($user->can(PermissionEnum::READ_PAIS)) {
+        if ($user->can(PermissionEnum::READ_COUNTRY)) {
             return Response::allow();
         }
 
@@ -42,7 +42,7 @@ class CountryPolicy
 
     public function create(User $user)
     {
-        if ($user->can(PermissionEnum::CREATE_PAIS)) {
+        if ($user->can(PermissionEnum::CREATE_COUNTRY)) {
             return Response::allow();
         }
 
@@ -54,7 +54,7 @@ class CountryPolicy
 
     public function update(User $user, Country $pais)
     {
-        if ($user->can(PermissionEnum::UPDATE_PAIS)) {
+        if ($user->can(PermissionEnum::UPDATE_COUNTRY)) {
             return Response::allow();
         }
 
@@ -66,7 +66,7 @@ class CountryPolicy
 
     public function delete(User $user, Country $pais)
     {
-        if ($user->can(PermissionEnum::DELETE_PAIS)) {
+        if ($user->can(PermissionEnum::DELETE_COUNTRY)) {
             return Response::allow();
         }
 

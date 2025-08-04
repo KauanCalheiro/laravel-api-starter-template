@@ -18,7 +18,7 @@ class CityPolicy
 
     public function viewAny(User $user)
     {
-        if ($user->can(PermissionEnum::READ_CIDADE)) {
+        if ($user->can(PermissionEnum::READ_CITY)) {
             return Response::allow();
         }
 
@@ -30,7 +30,7 @@ class CityPolicy
 
     public function view(User $user, City $cidade)
     {
-        if ($user->can(PermissionEnum::READ_CIDADE)) {
+        if ($user->can(PermissionEnum::READ_CITY)) {
             return Response::allow();
         }
 
@@ -42,7 +42,7 @@ class CityPolicy
 
     public function create(User $user)
     {
-        if ($user->can(PermissionEnum::CREATE_CIDADE)) {
+        if ($user->can(PermissionEnum::CREATE_CITY)) {
             return Response::allow();
         }
 
@@ -54,7 +54,7 @@ class CityPolicy
 
     public function update(User $user, City $cidade)
     {
-        if ($user->can(PermissionEnum::UPDATE_CIDADE)) {
+        if ($user->can(PermissionEnum::UPDATE_CITY)) {
             return Response::allow();
         }
 
@@ -66,7 +66,7 @@ class CityPolicy
 
     public function delete(User $user, City $cidade)
     {
-        if ($user->can(PermissionEnum::DELETE_CIDADE)) {
+        if ($user->can(PermissionEnum::DELETE_CITY)) {
             return Response::allow();
         }
 

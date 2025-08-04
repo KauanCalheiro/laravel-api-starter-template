@@ -4,22 +4,23 @@ namespace App\Enums;
 
 enum PermissionEnum: string
 {
-    case READ_USER   = 'read_user';
-    case ASSIGN_ROLE = 'assign_role';
-    case REVOKE_ROLE = 'revoke_role';
+    case CREATE_USER = 'user.create';
+    case READ_USER   = 'user.read';
+    case UPDATE_USER = 'user.update';
+    case DELETE_USER = 'user.delete';
 
-    case CREATE_PAIS = 'create_pais';
-    case READ_PAIS   = 'read_pais';
-    case UPDATE_PAIS = 'update_pais';
-    case DELETE_PAIS = 'delete_pais';
+    case CREATE_COUNTRY = 'country.create';
+    case READ_COUNTRY   = 'country.read';
+    case UPDATE_COUNTRY = 'country.update';
+    case DELETE_COUNTRY = 'country.delete';
 
-    case CREATE_ESTADO = 'create_estado';
-    case READ_ESTADO   = 'read_estado';
-    case UPDATE_ESTADO = 'update_estado';
-    case DELETE_ESTADO = 'delete_estado';
+    case CREATE_STATE = 'state.create';
+    case READ_STATE   = 'state.read';
+    case UPDATE_STATE = 'state.update';
+    case DELETE_STATE = 'state.delete';
 
-    case CREATE_CIDADE = 'create_cidade';
-    case READ_CIDADE   = 'read_cidade';
-    case UPDATE_CIDADE = 'update_cidade';
-    case DELETE_CIDADE = 'delete_cidade';
+    case CREATE_CITY = 'city.create';
+    case READ_CITY   = 'city.read';
+    case UPDATE_CITY = 'city.update';
+    case DELETE_CITY = 'city.delete';
 }

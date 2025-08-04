@@ -18,7 +18,7 @@ class StatePolicy
 
     public function viewAny(User $user)
     {
-        if ($user->can(PermissionEnum::READ_ESTADO)) {
+        if ($user->can(PermissionEnum::READ_STATE)) {
             return Response::allow();
         }
 
@@ -30,7 +30,7 @@ class StatePolicy
 
     public function view(User $user, State $estado)
     {
-        if ($user->can(PermissionEnum::READ_ESTADO)) {
+        if ($user->can(PermissionEnum::READ_STATE)) {
             return Response::allow();
         }
 
@@ -42,7 +42,7 @@ class StatePolicy
 
     public function create(User $user)
     {
-        if ($user->can(PermissionEnum::CREATE_ESTADO)) {
+        if ($user->can(PermissionEnum::CREATE_STATE)) {
             return Response::allow();
         }
 
@@ -54,7 +54,7 @@ class StatePolicy
 
     public function update(User $user, State $estado)
     {
-        if ($user->can(PermissionEnum::UPDATE_ESTADO)) {
+        if ($user->can(PermissionEnum::UPDATE_STATE)) {
             return Response::allow();
         }
 
@@ -66,7 +66,7 @@ class StatePolicy
 
     public function delete(User $user, State $estado)
     {
-        if ($user->can(PermissionEnum::DELETE_ESTADO)) {
+        if ($user->can(PermissionEnum::DELETE_STATE)) {
             return Response::allow();
         }
 
