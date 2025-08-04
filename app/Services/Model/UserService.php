@@ -7,7 +7,7 @@ use Illuminate\Auth\Access\AuthorizationException;
 
 class UserService
 {
-    private User $user;
+    public User $user;
 
     public function __construct(User $user = null)
     {
@@ -17,6 +17,19 @@ class UserService
     public static function make(User $user = null): self
     {
         return new self($user);
+    }
+
+    public static function store(array $data): self
+    {
+        $service       = new self();
+        $service->user = User::create($data);
+        return $service;
+    }
+
+    public function update(array $data): self
+    {
+        $this->user->update($data);
+        return $this;
     }
 
     public function syncRoles(User $requesterUser, User $targetUser, array $newRoles): self
