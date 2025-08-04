@@ -15,5 +15,7 @@ Route::prefix('v1')->group(function () {
         });
     });
 
-    Route::apiResource('user', UserController::class)->only(['index', 'show'])->names('user');
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::apiResource('user', UserController::class)->only(['index', 'show'])->names('user');
+    });
 });
