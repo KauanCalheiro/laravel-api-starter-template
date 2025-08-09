@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasActiveRole;
 use App\Traits\LogsAll;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -17,6 +18,7 @@ class User extends Authenticatable
     use Notifiable;
     use HasRoles;
     use LogsAll;
+    use HasActiveRole;
 
     protected $table = 'users';
 

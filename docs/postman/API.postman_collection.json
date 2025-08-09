@@ -130,6 +130,39 @@
 					"response": []
 				},
 				{
+					"name": "Set User Active Role",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"role\": \"admin\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{URL}}/auth/active-role",
+							"host": [
+								"{{URL}}"
+							],
+							"path": [
+								"auth",
+								"active-role"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Get Authenticated User",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
@@ -251,7 +284,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"roles\": [\n        \"admin\"\n    ]\n}",
+									"raw": "{\n    \"roles\": [\n        \"admin\",\n        \"user\"\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"

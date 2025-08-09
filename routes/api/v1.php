@@ -12,6 +12,7 @@ Route::prefix('v1')->group(function () {
         Route::middleware('auth:sanctum')->group(function () {
             Route::get('user', [AuthController::class, 'user'])->name('auth.user');
             Route::post('logout', [AuthController::class, 'logout'])->name('auth.logout');
+            Route::post('active-role', [AuthController::class, 'activeRole'])->name('auth.active-role');
         });
     });
 

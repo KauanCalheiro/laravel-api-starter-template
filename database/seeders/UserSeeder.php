@@ -16,6 +16,9 @@ class UserSeeder extends Seeder
             'password' => bcrypt('admin'),
         ]);
 
-        $admin->assignRole(RoleEnum::ADMIN->value);
+        $admin->assignRole([
+            RoleEnum::ADMIN->value,
+            RoleEnum::USER->value,
+        ]);
     }
 }
