@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Location;
 
 use App\Helpers\Spatie\QueryBuilder\Filters\Search\SearchFilter;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreStateRequest;
 use App\Http\Requests\UpdateStateRequest;
 use App\Models\Location\State;
