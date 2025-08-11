@@ -9,14 +9,14 @@ Route::prefix('v1')->group(function () {
         Route::post('login', [AuthController::class, 'login'])->name('auth.login');
         Route::post('register', [AuthController::class, 'register'])->name('auth.register');
 
-        Route::middleware('auth:sanctum')->group(function () {
+        Route::middleware('api')->group(function () {
             Route::get('user', [AuthController::class, 'user'])->name('auth.user');
             Route::post('logout', [AuthController::class, 'logout'])->name('auth.logout');
             Route::post('active-role', [AuthController::class, 'activeRole'])->name('auth.active-role');
         });
     });
 
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware('api')->group(function () {
         Route::apiResource('user', UserController::class)->names('user');
 
         Route::post('user/{user}/roles/assign', [UserController::class, 'assignRoles'])->name('user.roles.assign');
