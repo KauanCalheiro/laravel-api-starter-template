@@ -61,6 +61,7 @@ RUN composer install --optimize-autoloader --no-dev
 
 # Gera a chave de aplicação do Laravel
 RUN php artisan key:generate --force
+RUN php artisan jwt:secret --force
 
 ###########################################################################################
 ### Setup Laravel Octane com FrankenPHP e Caddy                                         ###
