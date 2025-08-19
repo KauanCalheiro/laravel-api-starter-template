@@ -16,4 +16,11 @@ if ! docker compose -f 'docker-compose.yml' up -d --build; then
     exit 1
 fi
 
+# Prune unused Docker resources
+echo -e "\033[0;34mPruning unused Docker resources...\033[0m"
+if ! docker system prune -f; then
+    echo -e "\033[0;31mError: Failed to prune unused Docker resources.\033[0m"
+    exit 1
+fi
+
 echo -e "\033[0;32mDeployment successful!\033[0m"

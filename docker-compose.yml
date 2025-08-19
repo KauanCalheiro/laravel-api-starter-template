@@ -6,7 +6,7 @@ services:
     restart: always
     volumes:
       - ./storage/app:/var/www/html/storage/app
-      - ./.env:/var/www/html/.env:ro
+      - ./.env:/var/www/html/.env
     ports:
       - "80:8000"
     networks:
