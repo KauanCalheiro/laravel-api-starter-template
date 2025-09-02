@@ -13,6 +13,6 @@ class ScalarController extends Controller
 
     public function spec()
     {
-        return response()->file(base_path('docs/scalar/openapi.yaml'));
+        return response()->file(base_path('docs/scalar/openapi.json'));
     }
 }
