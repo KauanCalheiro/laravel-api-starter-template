@@ -5,6 +5,7 @@ namespace App\Helpers\Spatie\QueryBuilder\Filters\Search;
 use App\Enums\DriverEnum;
 use App\Helpers\Spatie\QueryBuilder\Filters\Search\Strategies\PostgresSearchStrategy;
 use App\Helpers\Spatie\QueryBuilder\Filters\Search\Strategies\SearchStrategyInterface;
+use App\Helpers\Spatie\QueryBuilder\Filters\Search\Strategies\SqliteSearchStrategy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -45,6 +46,7 @@ class SearchFilter implements Filter
     {
         return match ($driver) {
             DriverEnum::POSTGRES->value => new PostgresSearchStrategy(),
+            DriverEnum::SQLITE->value   => new SqliteSearchStrategy(),
             default                     => throw new RuntimeException(__(
                 'database.unsupported.driver',
                 ['driver' => $driver],
