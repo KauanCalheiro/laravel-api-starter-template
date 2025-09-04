@@ -121,4 +121,6 @@ return [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store'  => env('APP_MAINTENANCE_STORE', 'database'),
     ],
+
+    'health_route' => env('APP_HEALTH_ROUTE', '/api/health'),
 ];
