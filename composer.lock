@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "011acf58b1e9b95c24304cd964848cfe",
+    "content-hash": "436fef384fb617a394c5e22576fcc9ec",
     "packages": [
         {
             "name": "aaronfrancis/fast-paginate",
@@ -1179,6 +1179,65 @@
                 }
             ],
             "time": "2025-08-22T14:27:06+00:00"
+        },
+        {
+            "name": "kamoca/laravel-jwt-database-blacklist",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/KauanCalheiro/laravel-jwt-database-blacklist.git",
+                "reference": "fab50cb1072c67d65acc98450d15bdfa8f94199d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/KauanCalheiro/laravel-jwt-database-blacklist/zipball/fab50cb1072c67d65acc98450d15bdfa8f94199d",
+                "reference": "fab50cb1072c67d65acc98450d15bdfa8f94199d",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/database": "^9.0|^10.0|^11.0|^12.0",
+                "illuminate/support": "^9.0|^10.0|^11.0|^12.0",
+                "php": "^8.0",
+                "tymon/jwt-auth": "^2.2"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Kamoca\\JwtDatabaseBlacklist\\Providers\\BlacklistServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Kamoca\\JwtDatabaseBlacklist\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Kauan Morinel Calheiro",
+                    "email": "kauan.calheiro@universo.univates.br",
+                    "homepage": "https://github.com/KauanCalheiro",
+                    "role": "Developer"
+                }
+            ],
+            "description": "JWT blacklist storage in database for tymon/jwt-auth",
+            "homepage": "https://github.com/KauanCalheiro/laravel-jwt-database-blacklist",
+            "keywords": [
+                "blacklist",
+                "database",
+                "jwt",
+                "laravel"
+            ],
+            "support": {
+                "issues": "https://github.com/KauanCalheiro/laravel-jwt-database-blacklist/issues",
+                "source": "https://github.com/KauanCalheiro/laravel-jwt-database-blacklist"
+            },
+            "time": "2025-09-02T22:41:38+00:00"
         },
         {
             "name": "laminas/laminas-diactoros",

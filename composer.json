@@ -11,6 +11,7 @@
     "require": {
         "php": "^8.2",
         "aaronfrancis/fast-paginate": "^2.0",
+        "kamoca/laravel-jwt-database-blacklist": "^1.0",
         "laravel/framework": "^12.18.0",
         "laravel/octane": "^2.11",
         "laravel/sanctum": "^4.0",
