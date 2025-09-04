@@ -34,7 +34,7 @@
     <div id="scalar"></div>
     <script>
         Scalar.createApiReference('#scalar', {
-            url: '/docs/scalar/spec',
+            url: '/docs/api/spec',
             theme: 'kepler',
         });
     </script>
