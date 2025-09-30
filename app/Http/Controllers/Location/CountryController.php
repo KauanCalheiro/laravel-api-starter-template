@@ -6,6 +6,7 @@ use App\Helpers\Spatie\QueryBuilder\Filters\Search\SearchFilter;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCountryRequest;
 use App\Http\Requests\UpdateCountryRequest;
+use App\Http\Resources\CountryResource;
 use App\Models\Location\Country;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -14,47 +15,44 @@ class CountryController extends Controller
 {
     public function __construct()
     {
-        $this->authorizeResource(Country::class, 'pais');
+        $this->authorizeResource(Country::class, 'country');
     }
 
     public function index()
     {
-        $paises = QueryBuilder::for(Country::class)
+        $countries = QueryBuilder::for(Country::class)
             ->allowedFilters([
-                'nome',
-                'sigla',
-                AllowedFilter::custom('search', new SearchFilter(['nome', 'sigla'])),
+                'name',
+                'code',
+                AllowedFilter::custom('search', new SearchFilter(['name', 'code'])),
             ])
-            ->allowedSorts(['nome', 'sigla'])
-            ->jsonPaginate()
-            ->toArray();
+            ->defaultSort('id')
+            ->jsonPaginate();
 
-        return $paises;
+        return CountryResource::collection($countries);
     }
 
     public function store(StoreCountryRequest $request)
     {
-        $pais = Country::create($request->validated());
+        $country = Country::create($request->validated());
 
-        return $pais;
+        return new CountryResource($country);
     }
 
-    public function show(Country $pais)
+    public function show(Country $country)
     {
-        return $pais;
+        return new CountryResource($country);
     }
 
-    public function update(UpdateCountryRequest $request, Country $pais)
+    public function update(UpdateCountryRequest $request, Country $country)
     {
-        $pais->update($request->validated());
+        $country->update($request->validated());
 
-        return $pais;
+        return new CountryResource($country);
     }
 
-    public function destroy(Country $pais)
+    public function destroy(Country $country)
     {
-        $pais->delete();
-
-        return $pais;
+        return $this->empty(fn () => $country->delete());
     }
 }
