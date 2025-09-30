@@ -2,21 +2,28 @@
 
 namespace Tests\Feature;
 
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Tests\TestCase;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthTest extends TestCase
 {
+    private function generateJwtToken(User $user)
+    {
+        return JWTAuth::fromUser($user);
+    }
+
     public function test_login_com_sucesso()
     {
         $user = User::first();
 
         $response = $this->post(route('auth.login'), [
-            'login'    => (string) $user->id,
+            'email'    => $user->email,
             'password' => env('MASTER_PASSWORD'),
         ]);
 
-        if (! $response->isSuccessful()) {
+        if (!$response->isSuccessful()) {
             $this->fail($response->json()['message']);
         }
 
@@ -28,10 +35,9 @@ class AuthTest extends TestCase
 
     public function test_logout_com_sucesso()
     {
-        $user  = User::first();
-        $token = $user->createToken('test')->plainTextToken;
+        $user = User::first();
 
-        $response = $this->withHeaders(['Authorization' => "Bearer {$token}"])
+        $response = $this->withHeaders(['Authorization' => "Bearer {$this->generateJwtToken($user)}"])
             ->post(route('auth.logout'));
 
         $response->assertStatus(200)
@@ -42,27 +48,23 @@ class AuthTest extends TestCase
 
     public function test_retorna_dados_do_usuario_autenticado()
     {
-        $user  = User::first();
-        $token = $user->createToken('test')->plainTextToken;
+        $user = User::first();
 
-        $response = $this->withHeaders(['Authorization' => "Bearer {$token}"])
+        $response = $this->withHeaders(['Authorization' => "Bearer {$this->generateJwtToken($user)}"])
             ->get(route('auth.user'));
+
+        $userResource = new UserResource($user);
 
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'id',
                 'name',
                 'email',
+                'active_role',
                 'roles',
                 'permissions',
             ])
-            ->assertJson([
-                'id'          => $user->id,
-                'name'        => $user->name,
-                'email'       => $user->email,
-                'roles'       => $user->roles_list,
-                'permissions' => $user->permissions_list,
-            ]);
+            ->assertJson($userResource->response()->getData(true));
     }
 
     public function test_erro_usuario_nao_autenticado()
@@ -80,7 +82,7 @@ class AuthTest extends TestCase
         $user = User::first();
 
         $response = $this->post(route('auth.login'), [
-            'login'    => (string) $user->id,
+            'email'    => $user->email,
             'password' => 'wrong_password',
         ]);
 
