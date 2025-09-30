@@ -25,7 +25,7 @@ class City extends Model
         'deleted_at',
     ];
 
-    public function estado()
+    public function state()
     {
         return $this->belongsTo(State::class, 'state_id');
     }
