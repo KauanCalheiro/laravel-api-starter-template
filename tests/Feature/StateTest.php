@@ -2,24 +2,26 @@
 
 namespace Tests\Feature;
 
-use App\Models\Country;
-use App\Models\State;
-use App\Models\User;
+use App\Models\Location\Country;
+use App\Models\Location\State;
 use Illuminate\Database\Eloquent\Model;
 use Tests\Contracts\CrudTestContract;
 use Tests\Contracts\IncludeTestContract;
 use Tests\Contracts\SearchTestContract;
+use Tests\Helpers\Auth\JwtApiAuthenticatable;
 use Tests\Helpers\JsonError;
 use Tests\Helpers\JsonPagination;
 use Tests\Helpers\JsonValidationError;
 use Tests\TestCase;
+use Tests\Trait\Authenticatable;
 
-class EstadoTest extends TestCase implements
+class StateTest extends TestCase implements
     CrudTestContract,
     SearchTestContract,
     IncludeTestContract
 {
-    protected User $user;
+    use Authenticatable;
+
     protected Model $model;
     protected string $table;
     protected string $route;
@@ -29,12 +31,10 @@ class EstadoTest extends TestCase implements
         parent::setUp();
 
         $this->model = new State();
-        $this->route = 'estado';
+        $this->route = 'state';
         $this->table = $this->model->getTable();
-        $this->user  = User::role('admin')->first();
-        $this->withHeaders([
-            'Authorization' => 'Bearer ' . $this->user->createToken('test')->plainTextToken,
-        ]);
+
+        $this->authenticate(JwtApiAuthenticatable::class);
     }
 
     public function test_listagem_com_paginacao()
@@ -48,51 +48,70 @@ class EstadoTest extends TestCase implements
     public function test_listagem_com_paginacao_e_filtros()
     {
         $response = $this->getJson(
-            route("{$this->route}.index") . '?filter[nome]=rio grande do sul&filter[sigla]=RS',
+            route(
+                "{$this->route}.index",
+                [
+                    'filter[name]' => 'rio grande do sul',
+                    'filter[code]' => 'RS',
+                ],
+            ),
         );
 
         $response->assertStatus(200)
             ->assertJsonStructure(JsonPagination::STRUCTURE)
             ->assertJsonFragment([
-                'id'    => 81,
-                'nome'  => 'RIO GRANDE DO SUL',
-                'sigla' => 'RS',
+                'name' => 'RIO GRANDE DO SUL',
+                'code' => 'RS',
             ]);
     }
 
     public function test_listagem_com_search()
     {
         $response = $this->getJson(
-            route("{$this->route}.index") . '?filter[search]=rio grande do sul',
+            route(
+                "{$this->route}.index",
+                [
+                    'filter[search]' => 'rio grande do sul',
+                ],
+            ),
         );
 
         $response->assertStatus(200)
             ->assertJsonStructure(JsonPagination::STRUCTURE)
             ->assertJsonFragment([
-                'id'    => 81,
-                'nome'  => 'RIO GRANDE DO SUL',
-                'sigla' => 'RS',
+                'name' => 'RIO GRANDE DO SUL',
+                'code' => 'RS',
             ]);
     }
 
     public function test_listagem_com_include()
     {
         $response = $this->getJson(
-            route("{$this->route}.index") . '?include=pais',
+            route(
+                "{$this->route}.index",
+                [
+                    'include' => 'country',
+                ],
+            ),
         );
 
         $response->assertStatus(200)
             ->assertJsonStructure(JsonPagination::STRUCTURE)
             ->assertJsonFragment([
-                'nome'  => 'BRASIL',
-                'sigla' => 'BRA',
+                'name' => 'BRASIL',
+                'code' => 'BRA',
             ]);
     }
 
     public function test_erro_listagem_com_include_invalido()
     {
         $response = $this->getJson(
-            route("{$this->route}.index") . '?include=invalido',
+            route(
+                "{$this->route}.index",
+                [
+                    'include' => 'invalido',
+                ],
+            ),
         );
 
         $response->assertStatus(400)
@@ -102,7 +121,9 @@ class EstadoTest extends TestCase implements
     public function test_erro_listagem_com_filtros_incorretos()
     {
         $response = $this->getJson(
-            route("{$this->route}.index") . '?filter[inexistente]=inexistente',
+            route("{$this->route}.index", [
+                'filter[inexistente]' => 'inexistente',
+            ]),
         );
 
         $response->assertStatus(400)
@@ -133,16 +154,16 @@ class EstadoTest extends TestCase implements
 
     public function test_cria_registro()
     {
-        $pais = Country::first();
+        $country = Country::first();
 
-        if (!$pais) {
+        if (!$country) {
             $this->markTestSkipped('No Pais records found.');
         }
 
         $data = [
-            'nome'     => 'TEST ESTADO',
-            'sigla'    => 'TE',
-            'ref_pais' => (int)$pais->id,
+            'name'       => 'TEST ESTADO',
+            'code'       => 'TE',
+            'country_id' => (int)$country->id,
         ];
 
         $response = $this->postJson(route("{$this->route}.store"), $data);
@@ -156,30 +177,30 @@ class EstadoTest extends TestCase implements
     public function test_erro_cria_registro_com_campos_incorretos()
     {
         $data = [
-            'nome'  => 'TEST ESTADO',
-            'sigla' => 'TE',
-            // 'ref_pais' is missing
+            'name' => 'TEST ESTADO',
+            'code' => 'TE',
+            // 'country_id' is missing
         ];
 
         $response = $this->postJson(route("{$this->route}.store"), $data);
 
         $response->assertStatus(422)
             ->assertJsonStructure(JsonValidationError::STRUCTURE)
-            ->assertJsonValidationErrors(['ref_pais']);
+            ->assertJsonValidationErrors(['country_id']);
     }
 
     public function test_atualiza_registro()
     {
-        $pais = Country::first();
+        $country = Country::first();
 
-        if (!$pais) {
+        if (!$country) {
             $this->markTestSkipped('No Pais records found.');
         }
 
         $data = [
-            'nome'     => 'TEST ESTADO',
-            'sigla'    => 'TE',
-            'ref_pais' => (int)$pais->id,
+            'name'       => 'TEST ESTADO',
+            'code'       => 'TE',
+            'country_id' => (int)$country->id,
         ];
 
         $estado = State::firstOrCreate(
@@ -188,7 +209,7 @@ class EstadoTest extends TestCase implements
 
         $this->assertDatabaseHas($this->table, $estado->toArray());
 
-        $data['nome'] = 'TEST ESTADO ATUALIZADO';
+        $data['name'] = 'TEST ESTADO ATUALIZADO';
 
         $response = $this->putJson(route("{$this->route}.update", $estado->id), $data);
 
@@ -200,16 +221,16 @@ class EstadoTest extends TestCase implements
 
     public function test_erro_atualiza_registro_com_campos_incorretos()
     {
-        $pais = Country::first();
+        $country = Country::first();
 
-        if (!$pais) {
+        if (!$country) {
             $this->markTestSkipped('No Pais records found.');
         }
 
         $data = [
-            'nome'     => 'TEST ESTADO',
-            'sigla'    => 'TE',
-            'ref_pais' => (int)$pais->id,
+            'name'       => 'TEST ESTADO',
+            'code'       => 'TE',
+            'country_id' => (int)$country->id,
         ];
 
         $estado = State::firstOrCreate(
@@ -219,14 +240,14 @@ class EstadoTest extends TestCase implements
         $this->assertDatabaseHas($this->table, $estado->toArray());
 
         $data = [
-            'sigla' => 'LOONG',
+            'code' => 'LOONG',
         ];
 
         $response = $this->putJson(route("{$this->route}.update", $estado->id), $data);
 
         $response->assertStatus(422)
             ->assertJsonStructure(JsonValidationError::STRUCTURE)
-            ->assertJsonValidationErrors(['sigla']);
+            ->assertJsonValidationErrors(['code']);
     }
 
     public function test_deleta_registro()
@@ -239,7 +260,7 @@ class EstadoTest extends TestCase implements
 
         $response = $this->deleteJson(route("{$this->route}.destroy", $estado->id));
 
-        $response->assertStatus(200);
+        $response->assertStatus(204);
 
         $this->assertSoftDeleted($this->table, $estado->toArray());
     }
