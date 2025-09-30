@@ -14,8 +14,8 @@ class CitySeeder extends Seeder
 
         $cities = json_decode(File::get($jsonPath), true);
 
-        collect($cities)->each(function ($city) {
-            City::create($city);
+        collect($cities)->chunk(1000)->each(function ($batch) {
+            City::insert($batch->toArray());
         });
     }
 }

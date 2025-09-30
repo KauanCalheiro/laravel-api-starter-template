@@ -14,8 +14,8 @@ class StateSeeder extends Seeder
 
         $states = json_decode(File::get($jsonPath), true);
 
-        collect($states)->each(function ($state) {
-            State::create($state);
+        collect($states)->chunk(1000)->each(function ($batch) {
+            State::insert($batch->toArray());
         });
     }
 }
