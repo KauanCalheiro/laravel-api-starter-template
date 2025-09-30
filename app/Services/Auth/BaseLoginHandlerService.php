@@ -4,6 +4,7 @@ namespace App\Services\Auth;
 
 use App\Contracts\LoginHandlerContract;
 use App\Models\User;
+use Auth;
 use Exception;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -26,6 +27,8 @@ abstract class BaseLoginHandlerService implements LoginHandlerContract
         if (empty($authenticatable)) {
             throw new Exception(__('auth.login.user_not_found'));
         }
+
+        Auth::setUser($authenticatable);
 
         $token = JWTAuth::fromUser($authenticatable);
 
