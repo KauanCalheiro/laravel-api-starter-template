@@ -6,6 +6,7 @@ use App\Helpers\Spatie\QueryBuilder\Filters\Search\SearchFilter;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCityRequest;
 use App\Http\Requests\UpdateCityRequest;
+use App\Http\Resources\CityResource;
 use App\Models\Location\City;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -19,64 +20,59 @@ class CityController extends Controller
 
     public function index()
     {
-        $cidades = QueryBuilder::for(City::class)
+        $cities = QueryBuilder::for(City::class)
             ->allowedFilters([
-                'nome',
-                'estado.nome',
-                'estado.sigla',
-                AllowedFilter::exact('ref_estado'),
+                'name',
+                'state.name',
+                'state.code',
+                AllowedFilter::exact('state_id'),
                 AllowedFilter::custom(
                     'search',
                     new SearchFilter([
-                        'nome',
-                        'estado.nome',
-                        'estado.sigla',
+                        'name',
+                        'state.name',
+                        'state.code',
                     ]),
                 ),
             ])
-            ->defaultSorts([
-                'nome',
-            ])
+            ->defaultSort('name')
             ->allowedIncludes([
-                'estado',
-                'estado.pais',
+                'state',
+                'state.country',
             ])
-            ->jsonPaginate()
-            ->toArray();
+            ->jsonPaginate();
 
-        return $cidades;
+        return CityResource::collection($cities);
     }
 
     public function store(StoreCityRequest $request)
     {
-        $cidade = City::create($request->validated());
+        $city = City::create($request->validated());
 
-        return $cidade;
+        return new CityResource($city);
     }
 
-    public function show(City $cidade)
+    public function show(City $city)
     {
-        $cidade = QueryBuilder::for(City::class)
+        $city = QueryBuilder::for(City::class)
             ->allowedIncludes([
-                'estado',
-                'estado.pais',
+                'state',
+                'state.country',
             ])
-            ->find($cidade->id);
+            ->find($city->id);
 
-        return $cidade;
+        return new CityResource($city);
     }
 
-    public function update(UpdateCityRequest $request, City $cidade)
+    public function update(UpdateCityRequest $request, City $city)
     {
-        $cidade->update($request->validated());
+        $city->update($request->validated());
 
-        return $cidade;
+        return new CityResource($city);
     }
 
-    public function destroy(City $cidade)
+    public function destroy(City $city)
     {
-        $cidade->delete();
-
-        return $cidade;
+        return $this->empty(fn () => $city->delete());
     }
 }
