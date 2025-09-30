@@ -6,6 +6,7 @@ use App\Helpers\Spatie\QueryBuilder\Filters\Search\SearchFilter;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreStateRequest;
 use App\Http\Requests\UpdateStateRequest;
+use App\Http\Resources\StateResource;
 use App\Models\Location\State;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
@@ -19,55 +20,52 @@ class StateController extends Controller
 
     public function index()
     {
-        $estados = QueryBuilder::for(State::class)
+        $states = QueryBuilder::for(State::class)
             ->allowedFilters([
-                'nome',
-                'sigla',
+                'name',
+                'code',
                 AllowedFilter::custom(
                     'search',
                     new SearchFilter([
-                        'nome',
-                        'sigla',
-                        'pais.nome',
-                        'pais.sigla',
+                        'name',
+                        'code',
+                        'country.name',
+                        'country.code',
                     ]),
                 ),
             ])
-            ->allowedSorts(['nome', 'sigla'])
-            ->allowedIncludes(['pais'])
-            ->jsonPaginate()
-            ->toArray();
+            ->defaultSort('name')
+            ->allowedIncludes(['country'])
+            ->jsonPaginate();
 
-        return $estados;
+        return StateResource::collection($states);
     }
 
     public function store(StoreStateRequest $request)
     {
-        $estado = State::create($request->validated());
+        $state = State::create($request->validated());
 
-        return $estado;
+        return new StateResource($state);
     }
 
-    public function show(State $estado)
+    public function show(State $state)
     {
-        $estado = QueryBuilder::for(State::class)
+        $state = QueryBuilder::for(State::class)
             ->allowedIncludes(['pais'])
-            ->find($estado->id);
+            ->find($state->id);
 
-        return $estado;
+        return new StateResource($state);
     }
 
-    public function update(UpdateStateRequest $request, State $estado)
+    public function update(UpdateStateRequest $request, State $state)
     {
-        $estado->update($request->validated());
+        $state->update($request->validated());
 
-        return $estado;
+        return new StateResource($state);
     }
 
-    public function destroy(State $estado)
+    public function destroy(State $state)
     {
-        $estado->delete();
-
-        return $estado;
+        return $this->empty(fn () => $state->delete());
     }
 }
