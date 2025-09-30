@@ -16,8 +16,7 @@ class UpdateCountryRequest extends FormRequest
 
     public function prepareForValidation(): void
     {
-        foreach (['name', 'code
-        '] as $field) {
+        foreach (['name', 'code'] as $field) {
             if ($this->has($field)) {
                 $this->merge([$field => mb_convert_case($this->{$field}, MB_CASE_UPPER)]);
             }
@@ -28,8 +27,7 @@ class UpdateCountryRequest extends FormRequest
     {
         return [
             'name' => ['sometimes', 'required', 'string', 'max:255', 'uppercase'],
-            'code
-            ' => ['sometimes', 'required', 'string', 'max:3', 'uppercase'],
+            'code' => ['sometimes', 'required', 'string', 'max:3', 'uppercase'],
         ];
     }
 }
