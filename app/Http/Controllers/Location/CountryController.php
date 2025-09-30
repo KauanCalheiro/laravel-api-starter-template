@@ -26,7 +26,7 @@ class CountryController extends Controller
                 'code',
                 AllowedFilter::custom('search', new SearchFilter(['name', 'code'])),
             ])
-            ->defaultSort('id')
+            ->defaultSort('name')
             ->jsonPaginate();
 
         return CountryResource::collection($countries);
