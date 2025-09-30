@@ -7,10 +7,10 @@ Boilerplate for building APIs with Laravel, focused on productivity and best pra
 ```bash
 cp .env.example .env
 composer install
-php artisan key:generate
-php artisan jwt:secret
+php artisan key:generate --force
+php artisan jwt:secret --force
 touch database/database.sqlite
-php artisan migrate
+php artisan migrate:fresh --seed
 ```
 
 By default, the project uses SQLite. Ensure `DB_CONNECTION=sqlite` and `DB_DATABASE=./database/database.sqlite` in `.env`.
