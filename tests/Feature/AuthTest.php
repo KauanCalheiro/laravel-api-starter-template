@@ -4,11 +4,20 @@ namespace Tests\Feature;
 
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthTest extends TestCase
 {
+    use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->seed();
+    }
+
     private function generateJwtToken(User $user)
     {
         return JWTAuth::fromUser($user);
