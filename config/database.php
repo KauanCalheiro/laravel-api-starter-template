@@ -52,6 +52,14 @@ return [
             'search_path'    => 'public',
             'sslmode'        => 'prefer',
         ],
+
+        'testing' => [
+            'driver' => 'sqlite',
+            // 'database'                => database_path('testing.sqlite'),
+            'database'                => ':memory:',
+            'prefix'                  => '',
+            'foreign_key_constraints' => true,
+        ],
     ],
 
     /*
