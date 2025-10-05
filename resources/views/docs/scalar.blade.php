@@ -35,7 +35,10 @@
     <script>
         Scalar.createApiReference('#scalar', {
             url: '/docs/api/spec',
-            theme: 'kepler',
+            layout: "classic",
+            theme: "fastify",
+            slug: "api-1",
+            showToolbar: "never"
         });
     </script>
 </body>
