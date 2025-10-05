@@ -10,7 +10,7 @@ class PermissionSyncerService
     public static function sync(): void
     {
         collect(PermissionEnum::cases())->each(function ($permission) {
-            Permission::create([
+            Permission::firstOrCreate([
                 'name' => $permission->value,
             ]);
         });
