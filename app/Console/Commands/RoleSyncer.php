@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Enums\RoleEnum;
+use App\Services\Permission\PermissionSyncerService;
 use App\Services\Role\Handler\AdminRoleHandler;
 use App\Services\Role\Handler\UserRoleHandler;
 use App\Services\Role\Syncer\RoleSyncerService;
@@ -32,6 +33,8 @@ class RoleSyncer extends Command
         if (!$handlers) {
             return self::FAILURE;
         }
+
+        PermissionSyncerService::sync();
 
         $syncer = new RoleSyncerService($handlers);
         $syncer->sync();
