@@ -7,7 +7,7 @@ use App\Contracts\LoginHandlerContract;
 class AuthService
 {
     private const LOGIN_HANDLER = [
-        'sanctum' => SanctumLoginService::class,
+        'jwt' => JwtLoginService::class,
     ];
 
     private LoginHandlerContract $loginHandler;

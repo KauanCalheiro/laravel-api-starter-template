@@ -8,7 +8,7 @@ use Auth;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 
-class SanctumLoginService extends BaseLoginHandlerService
+class JwtLoginService extends BaseLoginHandlerService
 {
     public function validate(): self
     {
