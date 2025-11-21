@@ -2,6 +2,11 @@
 
 namespace App\Services\Model;
 
+use App\Http\Requests\AssignRolesUserRequest;
+use App\Http\Requests\RevokeRolesUserRequest;
+use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\SyncRolesUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 use App\Models\User;
 
 class UserService
@@ -18,34 +23,34 @@ class UserService
         return new self($user);
     }
 
-    public static function store(array $data): self
+    public function store(StoreUserRequest $data): self
     {
-        $service       = new self();
-        $service->user = User::create($data);
-        return $service;
-    }
-
-    public function update(array $data): self
-    {
-        $this->user->update($data);
+        $this->user->fill($data->validated());
+        $this->user->save();
         return $this;
     }
 
-    public function syncRoles(array $newRoles): self
+    public function update(UpdateUserRequest $data): self
     {
-        $this->user->syncRoles($newRoles);
+        $this->user->update($data->validated());
         return $this;
     }
 
-    public function assignRoles(array $newRoles): self
+    public function syncRoles(SyncRolesUserRequest $newRoles): self
     {
-        $this->user->assignRole($newRoles);
+        $this->user->syncRoles($newRoles->validated());
         return $this;
     }
 
-    public function revokeRoles(array $newRoles): self
+    public function assignRoles(AssignRolesUserRequest $newRoles): self
     {
-        $this->user->removeRole($newRoles);
+        $this->user->assignRole($newRoles->validated());
+        return $this;
+    }
+
+    public function revokeRoles(RevokeRolesUserRequest $newRoles): self
+    {
+        $this->user->removeRole($newRoles->validated());
         return $this;
     }
 }

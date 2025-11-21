@@ -58,7 +58,7 @@ class UserController extends Controller
     public function store(StoreUserRequest $request)
     {
         return new UserResource(
-            UserService::store($request->validated())->user,
+            UserService::make()->store($request)->user,
         );
     }
 
@@ -76,7 +76,7 @@ class UserController extends Controller
     public function update(UpdateUserRequest $request, User $user)
     {
         return new UserResource(
-            UserService::make($user)->update($request->validated())->user,
+            UserService::make($user)->update($request)->user,
         );
     }
 
@@ -87,7 +87,7 @@ class UserController extends Controller
 
     public function assignRoles(AssignRolesUserRequest $request, User $user)
     {
-        $service = UserService::make($user)->assignRoles($request->validated());
+        $service = UserService::make($user)->assignRoles($request);
         $service->user->load('roles');
 
         return new UserResource(
@@ -97,7 +97,7 @@ class UserController extends Controller
 
     public function revokeRoles(RevokeRolesUserRequest $request, User $user)
     {
-        $service = UserService::make($user)->revokeRoles($request->validated());
+        $service = UserService::make($user)->revokeRoles($request);
         $service->user->load('roles');
 
         return new UserResource(
@@ -107,7 +107,7 @@ class UserController extends Controller
 
     public function syncRoles(SyncRolesUserRequest $request, User $user)
     {
-        $service = UserService::make($user)->syncRoles($request->validated());
+        $service = UserService::make($user)->syncRoles($request);
         $service->user->load('roles');
 
         return new UserResource(
