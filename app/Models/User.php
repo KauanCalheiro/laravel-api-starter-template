@@ -6,6 +6,7 @@ use App\Traits\HasActiveRole;
 use App\Traits\LogsAll;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -20,8 +21,24 @@ class User extends Authenticatable implements JWTSubject
     use HasRoles;
     use LogsAll;
     use HasActiveRole;
+    use SoftDeletes;
 
     protected $table = 'users';
+
+    protected $fillable = [
+        'id',
+        'name',
+        'email',
+        'password',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+        'created_at',
+        'updated_at',
+        'deleted_at',
+    ];
 
     protected function password(): Attribute
     {
@@ -34,13 +51,6 @@ class User extends Authenticatable implements JWTSubject
     {
         return !password_get_info($value)['algo'];
     }
-
-    protected $fillable = [
-        'id',
-        'name',
-        'email',
-        'password',
-    ];
 
     public function getJWTIdentifier()
     {
