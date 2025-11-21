@@ -1,151 +1,204 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "API",
+    "title": "Laravel API Starter",
     "version": "1.0.0",
-    "description": "Docs"
+    "description": "HTTP API for authentication, user management."
   },
   "servers": [
     {
       "url": "http://localhost:8000/api/v1"
     }
   ],
+  "tags": [
+    {
+      "name": "Auth",
+      "description": "Authentication and session management"
+    },
+    {
+      "name": "Users",
+      "description": "User CRUD and profile endpoints"
+    },
+    {
+      "name": "User Roles",
+      "description": "Role assignment helpers for users"
+    },
+    {
+      "name": "Countries",
+      "description": "Country registry"
+    },
+    {
+      "name": "States",
+      "description": "State/region registry"
+    },
+    {
+      "name": "Cities",
+      "description": "City registry"
+    }
+  ],
   "paths": {
     "/auth/login": {
-      "parameters": [],
       "post": {
         "tags": [
           "Auth"
         ],
-        "summary": "Login",
+        "summary": "Authenticate with email and password",
+        "description": "Validates the provided credentials and returns a JWT token.",
+        "operationId": "loginWithEmail",
         "security": [],
-        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginInput"
+              },
+              "example": {
+                "email": "admin@example.com",
+                "password": "admin",
+                "remember_me": true
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "Authentication token",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "token": {
-                      "type": "string"
-                    }
-                  }
+                  "$ref": "#/components/schemas/AuthToken"
                 },
                 "example": {
-                  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYXBpL3YxL2F1dGgvbG9naW4iLCJpYXQiOjE3NTY4MTgzODEsImV4cCI6MTc1NjgyMTk4MSwibmJmIjoxNzU2ODE4MzgxLCJqdGkiOiJ3bkgwczF0SGN4WjJVUjMwIiwic3ViIjoiMSIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.sBLuWEKiPaSb7xVpHIiH05lrDde5TVqg6Ok9pU0BhuQ"
+                  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
                 }
               }
             }
           },
           "401": {
-            "description": "Credentials Do Not Match",
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Register a new user",
+        "description": "Creates a new user account and immediately returns a JWT token for the created user.",
+        "operationId": "registerUser",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterInput"
+              },
+              "example": {
+                "name": "Admin",
+                "email": "admin@example.com",
+                "password": "admin",
+                "password_confirmation": "admin"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authentication token",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "string",
-                      "format": "style"
-                    }
-                  }
+                  "$ref": "#/components/schemas/AuthToken"
                 },
                 "example": {
-                  "error": "Login failed: These credentials do not match our records."
+                  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
                 }
               }
             }
           },
           "422": {
-            "description": "Unprocessable Content",
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/auth/user": {
+      "get": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Get the authenticated user",
+        "operationId": "getAuthenticatedUser",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Authenticated user profile",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "string"
-                    },
-                    "errors": {
-                      "type": "object",
-                      "properties": {
-                        "email": {
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          }
-                        },
-                        "password": {
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          }
-                        }
-                      }
-                    }
-                  }
+                  "$ref": "#/components/schemas/AuthUser"
                 },
                 "example": {
-                  "error": "The email field is required. (and 1 more error)",
-                  "errors": {
-                    "email": [
-                      "The email field is required."
-                    ],
-                    "password": [
-                      "The password field is required."
-                    ]
-                  }
+                  "id": 1,
+                  "name": "Admin",
+                  "email": "admin@example.com",
+                  "active_role": "admin",
+                  "roles": [
+                    "admin",
+                    "user"
+                  ],
+                  "permissions": [
+                    "user.create",
+                    "user.read",
+                    "user.update",
+                    "user.delete"
+                  ]
                 }
               }
             }
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "email": {
-                    "type": "string",
-                    "format": "email"
-                  },
-                  "password": {
-                    "type": "string"
-                  }
-                }
-              },
-              "example": {
-                "email": "admin@example.com",
-                "password": "admin"
-              }
-            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
           }
         }
       }
     },
     "/auth/logout": {
-      "parameters": [],
       "post": {
         "tags": [
           "Auth"
         ],
         "summary": "Logout",
-        "parameters": [],
+        "operationId": "logoutUser",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "Logout confirmation",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string"
-                    }
-                  }
+                  "$ref": "#/components/schemas/MessageResponse"
                 },
                 "example": {
                   "message": "Logged out successfully"
@@ -153,1244 +206,2053 @@
               }
             }
           },
-          "500": {
-            "description": "Invalid Token",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "string"
-                    }
-                  }
-                },
-                "example": {
-                  "error": "Token could not be parsed from the request."
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/auth/register": {
-      "parameters": [],
-      "post": {
-        "tags": [
-          "Auth"
-        ],
-        "summary": "Register",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "token": {
-                      "type": "string"
-                    }
-                  }
-                },
-                "example": {
-                  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwMDAvYXBpL3YxL2F1dGgvcmVnaXN0ZXIiLCJpYXQiOjE3NTY4MjY0NDgsImV4cCI6MTc1NjgzMDA0OCwibmJmIjoxNzU2ODI2NDQ4LCJqdGkiOiI5SVBsYlR4Z3Z3eGxteHFIIiwic3ViIjoiMiIsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjcifQ.ymQTAatRYSg_PoFebSlkM-eHo9wSGuxo0yzBFDctddU"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Unprocessable Content",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "string"
-                    },
-                    "errors": {
-                      "type": "object",
-                      "properties": {
-                        "name": {
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          }
-                        },
-                        "email": {
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          }
-                        },
-                        "password": {
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          }
-                        }
-                      }
-                    }
-                  }
-                },
-                "example": {
-                  "error": "The name field is required. (and 2 more errors)",
-                  "errors": {
-                    "name": [
-                      "The name field is required."
-                    ],
-                    "email": [
-                      "The email field is required."
-                    ],
-                    "password": [
-                      "The password field is required."
-                    ]
-                  }
-                }
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "email": {
-                    "type": "string",
-                    "format": "email"
-                  },
-                  "password": {
-                    "type": "string"
-                  },
-                  "password_confirmation": {
-                    "type": "string"
-                  }
-                }
-              },
-              "example": {
-                "name": "Teste",
-                "email": "teste@teste.gmail.com",
-                "password": "teste123",
-                "password_confirmation": "teste123"
-              }
-            }
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
           }
         }
       }
     },
     "/auth/active-role": {
-      "parameters": [],
       "post": {
         "tags": [
           "Auth"
         ],
-        "summary": "Set User Active Role",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "integer"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "email": {
-                      "type": "string",
-                      "format": "email"
-                    },
-                    "active_role": {
-                      "type": "string"
-                    },
-                    "roles": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    },
-                    "permissions": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                },
-                "example": {
-                  "id": 1,
-                  "name": "Admin",
-                  "email": "admin@example.com",
-                  "active_role": "admin",
-                  "roles": [
-                    "admin",
-                    "user"
-                  ],
-                  "permissions": [
-                    "user.create",
-                    "user.read",
-                    "user.update",
-                    "user.delete",
-                    "user.assign.role",
-                    "user.revoke.role",
-                    "user.sync.role",
-                    "country.create",
-                    "country.read",
-                    "country.update",
-                    "country.delete",
-                    "state.create",
-                    "state.read",
-                    "state.update",
-                    "state.delete",
-                    "city.create",
-                    "city.read",
-                    "city.update",
-                    "city.delete"
-                  ]
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Unprocessable Content",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "string"
-                    },
-                    "errors": {
-                      "type": "object",
-                      "properties": {
-                        "role": {
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          }
-                        }
-                      }
-                    }
-                  }
-                },
-                "example": {
-                  "error": "The role field is required.",
-                  "errors": {
-                    "role": [
-                      "The role field is required."
-                    ]
-                  }
-                }
-              }
-            }
+        "summary": "Set active role",
+        "description": "Updates the authenticated user's active role to one of the roles already granted to them.",
+        "operationId": "setActiveRole",
+        "security": [
+          {
+            "bearerAuth": []
           }
-        },
+        ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "role": {
-                    "type": "string"
-                  }
-                }
+                "$ref": "#/components/schemas/ActiveRoleInput"
               },
               "example": {
                 "role": "admin"
               }
             }
           }
-        }
-      }
-    },
-    "/auth/user": {
-      "parameters": [],
-      "get": {
-        "tags": [
-          "Auth"
-        ],
-        "summary": "Get Authenticated User",
-        "parameters": [],
+        },
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "Updated authenticated user",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "integer"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "email": {
-                      "type": "string",
-                      "format": "email"
-                    },
-                    "active_role": {
-                      "type": "string"
-                    },
-                    "roles": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    },
-                    "permissions": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                },
-                "example": {
-                  "id": 1,
-                  "name": "Admin",
-                  "email": "admin@example.com",
-                  "active_role": "admin",
-                  "roles": [
-                    "admin",
-                    "user"
-                  ],
-                  "permissions": [
-                    "user.create",
-                    "user.read",
-                    "user.update",
-                    "user.delete",
-                    "user.assign.role",
-                    "user.revoke.role",
-                    "user.sync.role",
-                    "country.create",
-                    "country.read",
-                    "country.update",
-                    "country.delete",
-                    "state.create",
-                    "state.read",
-                    "state.update",
-                    "state.delete",
-                    "city.create",
-                    "city.read",
-                    "city.update",
-                    "city.delete"
-                  ]
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/user/{user_id}/roles/assign": {
-      "parameters": [],
-      "post": {
-        "tags": [
-          "User Role"
-        ],
-        "summary": "Assign",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "integer"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "email": {
-                      "type": "string",
-                      "format": "email"
-                    },
-                    "roles": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                },
-                "example": {
-                  "id": 1,
-                  "name": "Admin",
-                  "email": "admin@example.com",
-                  "roles": [
-                    "admin",
-                    "user"
-                  ]
+                  "$ref": "#/components/schemas/AuthUser"
                 }
               }
             }
           },
-          "422": {
-            "description": "Unprocessable Content",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "string"
-                    },
-                    "errors": {
-                      "type": "object",
-                      "properties": {
-                        "roles": {
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          }
-                        }
-                      }
-                    }
-                  }
-                },
-                "example": {
-                  "error": "The roles field is required.",
-                  "errors": {
-                    "roles": [
-                      "The roles field is required."
-                    ]
-                  }
-                }
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "roles": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "example": {
-                "roles": [
-                  "admin",
-                  "user"
-                ]
-              }
-            }
-          }
-        }
-      }
-    },
-    "/user/{user_id}/roles/revoke": {
-      "parameters": [],
-      "post": {
-        "tags": [
-          "User Role"
-        ],
-        "summary": "Revoke",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "integer"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "email": {
-                      "type": "string",
-                      "format": "email"
-                    },
-                    "roles": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                },
-                "example": {
-                  "id": 1,
-                  "name": "Admin",
-                  "email": "admin@example.com",
-                  "roles": [
-                    "admin"
-                  ]
-                }
-              }
-            }
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
           },
           "422": {
-            "description": "Unprocessable Content",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "string"
-                    },
-                    "errors": {
-                      "type": "object",
-                      "properties": {
-                        "roles": {
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          }
-                        }
-                      }
-                    }
-                  }
-                },
-                "example": {
-                  "error": "The roles field is required.",
-                  "errors": {
-                    "roles": [
-                      "The roles field is required."
-                    ]
-                  }
-                }
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "roles": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "example": {
-                "roles": [
-                  "user"
-                ]
-              }
-            }
-          }
-        }
-      }
-    },
-    "/user/{user_id}/roles/sync": {
-      "parameters": [],
-      "post": {
-        "tags": [
-          "User Role"
-        ],
-        "summary": "Sync",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "integer"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "email": {
-                      "type": "string",
-                      "format": "email"
-                    },
-                    "roles": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    }
-                  }
-                },
-                "example": {
-                  "id": 1,
-                  "name": "Admin",
-                  "email": "admin@example.com",
-                  "roles": [
-                    "admin",
-                    "user"
-                  ]
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Unprocessable Content",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "string"
-                    },
-                    "errors": {
-                      "type": "object",
-                      "properties": {
-                        "roles": {
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          }
-                        }
-                      }
-                    }
-                  }
-                },
-                "example": {
-                  "error": "The roles field is required.",
-                  "errors": {
-                    "roles": [
-                      "The roles field is required."
-                    ]
-                  }
-                }
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "roles": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
-                  }
-                }
-              },
-              "example": {
-                "roles": [
-                  "admin",
-                  "user"
-                ]
-              }
-            }
+            "$ref": "#/components/responses/ValidationError"
           }
         }
       }
     },
     "/user": {
-      "parameters": [],
-      "post": {
+      "get": {
         "tags": [
-          "User"
+          "Users"
         ],
-        "summary": "Create User",
-        "parameters": [],
+        "summary": "List users",
+        "operationId": "listUsers",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FilterUserId"
+          },
+          {
+            "$ref": "#/components/parameters/FilterUserName"
+          },
+          {
+            "$ref": "#/components/parameters/FilterUserEmail"
+          },
+          {
+            "$ref": "#/components/parameters/FilterUserSearch"
+          },
+          {
+            "$ref": "#/components/parameters/IncludeUsers"
+          },
+          {
+            "$ref": "#/components/parameters/SortUsers"
+          },
+          {
+            "$ref": "#/components/parameters/PageSize"
+          },
+          {
+            "$ref": "#/components/parameters/PageNumber"
+          }
+        ],
         "responses": {
-          "201": {
-            "description": "OK",
+          "200": {
+            "description": "Paginated list of users",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "integer"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "email": {
-                      "type": "string",
-                      "format": "email"
-                    }
-                  }
-                },
-                "example": {
-                  "id": 4,
-                  "name": "Teste 1",
-                  "email": "teste@create.gmail.com"
+                  "$ref": "#/components/schemas/PaginatedUsers"
                 }
               }
             }
           },
-          "422": {
-            "description": "Unprocessable Content",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "string"
-                    },
-                    "errors": {
-                      "type": "object",
-                      "properties": {
-                        "name": {
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          }
-                        },
-                        "email": {
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          }
-                        },
-                        "password": {
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          }
-                        }
-                      }
-                    }
-                  }
-                },
-                "example": {
-                  "error": "The name field is required. (and 2 more errors)",
-                  "errors": {
-                    "name": [
-                      "The name field is required."
-                    ],
-                    "email": [
-                      "The email field is required."
-                    ],
-                    "password": [
-                      "The password field is required."
-                    ]
-                  }
-                }
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Create user",
+        "operationId": "createUser",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserInput"
+              },
+              "example": {
+                "name": "Jane Doe",
+                "email": "jane@example.com",
+                "password": "admin",
+                "password_confirmation": "admin"
               }
             }
           }
         },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "email": {
-                    "type": "string",
-                    "format": "email"
-                  },
-                  "password": {
-                    "type": "string"
-                  },
-                  "password_confirmation": {
-                    "type": "string"
-                  }
-                }
-              },
-              "example": {
-                "name": "Teste 1",
-                "email": "teste@create.gmail.com",
-                "password": "teste123",
-                "password_confirmation": "teste123"
-              }
-            }
-          }
-        }
-      },
-      "get": {
-        "tags": [
-          "User"
-        ],
-        "summary": "Get All Users",
-        "parameters": [
-          {
-            "name": "filter[id]",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "filter[name]",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "filter[email]",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "filter[search]",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "include",
-            "in": "query",
-            "required": false,
-            "example": "roles,rolesCount,rolesExists",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "page[size]",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "page[number]",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "Created user",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "integer"
-                          },
-                          "name": {
-                            "type": "string"
-                          },
-                          "email": {
-                            "type": "string",
-                            "format": "email"
-                          }
-                        }
-                      }
-                    },
-                    "links": {
-                      "type": "object",
-                      "properties": {
-                        "first": {
-                          "type": "string",
-                          "format": "uri"
-                        },
-                        "last": {
-                          "type": "string",
-                          "format": "uri"
-                        },
-                        "prev": {
-                          "nullable": true
-                        },
-                        "next": {
-                          "nullable": true
-                        }
-                      }
-                    },
-                    "meta": {
-                      "type": "object",
-                      "properties": {
-                        "current_page": {
-                          "type": "integer"
-                        },
-                        "from": {
-                          "type": "integer"
-                        },
-                        "last_page": {
-                          "type": "integer"
-                        },
-                        "links": {
-                          "type": "array",
-                          "items": {
-                            "type": "object",
-                            "properties": {
-                              "url": {
-                                "nullable": true
-                              },
-                              "label": {
-                                "type": "string"
-                              },
-                              "page": {
-                                "nullable": true
-                              },
-                              "active": {
-                                "type": "boolean"
-                              }
-                            }
-                          }
-                        },
-                        "path": {
-                          "type": "string",
-                          "format": "uri"
-                        },
-                        "per_page": {
-                          "type": "integer"
-                        },
-                        "to": {
-                          "type": "integer"
-                        },
-                        "total": {
-                          "type": "integer"
-                        }
-                      }
-                    }
-                  }
-                },
-                "example": {
-                  "data": [
-                    {
-                      "id": 1,
-                      "name": "Admin",
-                      "email": "admin@example.com"
-                    },
-                    {
-                      "id": 2,
-                      "name": "Teste",
-                      "email": "teste@teste.gmail.com"
-                    },
-                    {
-                      "id": 3,
-                      "name": "Teste",
-                      "email": "teste@teste1.gmail.com"
-                    },
-                    {
-                      "id": 4,
-                      "name": "Teste 1",
-                      "email": "teste@create.gmail.com"
-                    }
-                  ],
-                  "links": {
-                    "first": "http://localhost:8000/api/v1/user?page%5Bnumber%5D=1",
-                    "last": "http://localhost:8000/api/v1/user?page%5Bnumber%5D=1",
-                    "prev": null,
-                    "next": null
-                  },
-                  "meta": {
-                    "current_page": 1,
-                    "from": 1,
-                    "last_page": 1,
-                    "links": [
-                      {
-                        "url": null,
-                        "label": "&laquo; Previous",
-                        "page": null,
-                        "active": false
-                      },
-                      {
-                        "url": "http://localhost:8000/api/v1/user?page%5Bnumber%5D=1",
-                        "label": "1",
-                        "page": 1,
-                        "active": true
-                      },
-                      {
-                        "url": null,
-                        "label": "Next &raquo;",
-                        "page": null,
-                        "active": false
-                      }
-                    ],
-                    "path": "http://localhost:8000/api/v1/user",
-                    "per_page": 10,
-                    "to": 4,
-                    "total": 4
-                  }
+                  "$ref": "#/components/schemas/User"
                 }
               }
             }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
           }
         }
       }
     },
-    "/user/{user_id}": {
-      "parameters": [],
+    "/user/{user}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/UserIdPath"
+        }
+      ],
       "get": {
         "tags": [
-          "User"
+          "Users"
         ],
-        "summary": "Get User by ID",
+        "summary": "Get user by id",
+        "operationId": "getUserById",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "parameters": [
           {
-            "name": "include",
-            "in": "query",
-            "required": false,
-            "example": "roles,rolesCount,rolesExists",
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "Accept",
-            "in": "header",
-            "required": false,
-            "example": "application/json",
-            "schema": {
-              "type": "string"
-            }
+            "$ref": "#/components/parameters/IncludeUsers"
           }
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "User details",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "integer"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "email": {
-                      "type": "string",
-                      "format": "email"
-                    },
-                    "roles": {
-                      "type": "array",
-                      "items": {
-                        "type": "string"
-                      }
-                    },
-                    "roles_count": {
-                      "type": "integer"
-                    },
-                    "roles_exists": {
-                      "type": "boolean"
-                    }
-                  }
-                },
-                "example": {
-                  "id": 1,
-                  "name": "Admin",
-                  "email": "admin@example.com",
-                  "roles": [
-                    "admin",
-                    "user"
-                  ],
-                  "roles_count": 2,
-                  "roles_exists": true
+                  "$ref": "#/components/schemas/User"
                 }
               }
             }
           },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
           "404": {
-            "description": "Not Found",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "string"
-                    }
-                  }
-                },
-                "example": {
-                  "error": "The requested resource was not found."
-                }
-              }
-            }
+            "$ref": "#/components/responses/NotFoundError"
           }
         }
       },
       "put": {
         "tags": [
-          "User"
+          "Users"
         ],
-        "summary": "Update User",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": {
-                      "type": "integer"
-                    },
-                    "name": {
-                      "type": "string"
-                    },
-                    "email": {
-                      "type": "string",
-                      "format": "email"
-                    }
-                  }
-                },
-                "example": {
-                  "id": 2,
-                  "name": "Teste 1 Update",
-                  "email": "teste@update.gmail.com"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Unprocessable Content",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "string"
-                    },
-                    "errors": {
-                      "type": "object",
-                      "properties": {
-                        "name": {
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          }
-                        },
-                        "email": {
-                          "type": "array",
-                          "items": {
-                            "type": "string"
-                          }
-                        }
-                      }
-                    }
-                  }
-                },
-                "example": {
-                  "error": "The name field is required. (and 1 more error)",
-                  "errors": {
-                    "name": [
-                      "The name field is required."
-                    ],
-                    "email": [
-                      "The email field is required."
-                    ]
-                  }
-                }
+        "summary": "Update user",
+        "operationId": "updateUser",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserUpdateInput"
+              },
+              "example": {
+                "name": "Jane Doe",
+                "email": "jane.updated@example.com"
               }
             }
           }
         },
+        "responses": {
+          "200": {
+            "description": "Updated user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Partially update user",
+        "operationId": "patchUser",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "name": {
-                    "type": "string"
-                  },
-                  "email": {
-                    "type": "string",
-                    "format": "email"
-                  }
-                }
-              },
-              "example": {
-                "name": "Teste 1 Update",
-                "email": "teste@update.gmail.com"
+                "$ref": "#/components/schemas/UserUpdateInput"
               }
             }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
           }
         }
       },
       "delete": {
         "tags": [
-          "User"
+          "Users"
         ],
-        "summary": "Delete User",
-        "parameters": [],
+        "summary": "Delete user",
+        "operationId": "deleteUser",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "responses": {
           "204": {
-            "description": "No Content",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                },
-                "example": {}
-              }
-            }
+            "description": "User removed"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
           },
           "404": {
-            "description": "Not Found",
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      }
+    },
+    "/user/{user}/roles/assign": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/UserIdPath"
+        }
+      ],
+      "post": {
+        "tags": [
+          "User Roles"
+        ],
+        "summary": "Assign roles to user",
+        "operationId": "assignRolesToUser",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignRolesInput"
+              },
+              "example": {
+                "roles": [
+                  "admin",
+                  "user"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User with updated roles",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": {
-                      "type": "string"
-                    }
-                  }
-                },
-                "example": {
-                  "error": "The requested resource was not found."
+                  "$ref": "#/components/schemas/User"
                 }
               }
             }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/user/{user}/roles/revoke": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/UserIdPath"
+        }
+      ],
+      "post": {
+        "tags": [
+          "User Roles"
+        ],
+        "summary": "Revoke roles from user",
+        "operationId": "revokeRolesFromUser",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignRolesInput"
+              },
+              "example": {
+                "roles": [
+                  "user"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User with updated roles",
+            "content": {
+              "application/json": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/user/{user}/roles/sync": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/UserIdPath"
+        }
+      ],
+      "post": {
+        "tags": [
+          "User Roles"
+        ],
+        "summary": "Sync roles on user",
+        "operationId": "syncRolesOnUser",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignRolesInput"
+              },
+              "example": {
+                "roles": [
+                  "manager",
+                  "user"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User with synced roles",
+            "content": {
+              "application/json": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/country": {
+      "get": {
+        "tags": [
+          "Countries"
+        ],
+        "summary": "List countries",
+        "operationId": "listCountries",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FilterCountryName"
+          },
+          {
+            "$ref": "#/components/parameters/FilterCountryCode"
+          },
+          {
+            "$ref": "#/components/parameters/FilterCountrySearch"
+          },
+          {
+            "$ref": "#/components/parameters/PageSize"
+          },
+          {
+            "$ref": "#/components/parameters/PageNumber"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of countries",
+            "content": {
+              "application/json": {
+                "$ref": "#/components/schemas/PaginatedCountries"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Countries"
+        ],
+        "summary": "Create country",
+        "operationId": "createCountry",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CountryInput"
+              },
+              "example": {
+                "name": "BRAZIL",
+                "code": "BRA"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created country",
+            "content": {
+              "application/json": {
+                "$ref": "#/components/schemas/Country"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/country/{country}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/CountryIdPath"
+        }
+      ],
+      "get": {
+        "tags": [
+          "Countries"
+        ],
+        "summary": "Get country",
+        "operationId": "getCountry",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Country details",
+            "content": {
+              "application/json": {
+                "$ref": "#/components/schemas/Country"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Countries"
+        ],
+        "summary": "Update country",
+        "operationId": "updateCountry",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CountryUpdateInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated country",
+            "content": {
+              "application/json": {
+                "$ref": "#/components/schemas/Country"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Countries"
+        ],
+        "summary": "Partially update country",
+        "operationId": "patchCountry",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CountryUpdateInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated country",
+            "content": {
+              "application/json": {
+                "$ref": "#/components/schemas/Country"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Countries"
+        ],
+        "summary": "Delete country",
+        "operationId": "deleteCountry",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Country removed"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      }
+    },
+    "/state": {
+      "get": {
+        "tags": [
+          "States"
+        ],
+        "summary": "List states",
+        "operationId": "listStates",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FilterStateName"
+          },
+          {
+            "$ref": "#/components/parameters/FilterStateCode"
+          },
+          {
+            "$ref": "#/components/parameters/FilterStateSearch"
+          },
+          {
+            "$ref": "#/components/parameters/IncludeStates"
+          },
+          {
+            "$ref": "#/components/parameters/PageSize"
+          },
+          {
+            "$ref": "#/components/parameters/PageNumber"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of states",
+            "content": {
+              "application/json": {
+                "$ref": "#/components/schemas/PaginatedStates"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "States"
+        ],
+        "summary": "Create state",
+        "operationId": "createState",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StateInput"
+              },
+              "example": {
+                "name": "SAO PAULO",
+                "code": "SP",
+                "country_id": 1
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created state",
+            "content": {
+              "application/json": {
+                "$ref": "#/components/schemas/State"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/state/{state}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/StateIdPath"
+        }
+      ],
+      "get": {
+        "tags": [
+          "States"
+        ],
+        "summary": "Get state",
+        "operationId": "getState",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IncludeStates"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "State details",
+            "content": {
+              "application/json": {
+                "$ref": "#/components/schemas/State"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "States"
+        ],
+        "summary": "Update state",
+        "operationId": "updateState",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StateUpdateInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated state",
+            "content": {
+              "application/json": {
+                "$ref": "#/components/schemas/State"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "States"
+        ],
+        "summary": "Partially update state",
+        "operationId": "patchState",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StateUpdateInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated state",
+            "content": {
+              "application/json": {
+                "$ref": "#/components/schemas/State"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "States"
+        ],
+        "summary": "Delete state",
+        "operationId": "deleteState",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "State removed"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      }
+    },
+    "/city": {
+      "get": {
+        "tags": [
+          "Cities"
+        ],
+        "summary": "List cities",
+        "operationId": "listCities",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FilterCityName"
+          },
+          {
+            "$ref": "#/components/parameters/FilterCityStateName"
+          },
+          {
+            "$ref": "#/components/parameters/FilterCityStateCode"
+          },
+          {
+            "$ref": "#/components/parameters/FilterCityStateId"
+          },
+          {
+            "$ref": "#/components/parameters/FilterCitySearch"
+          },
+          {
+            "$ref": "#/components/parameters/IncludeCities"
+          },
+          {
+            "$ref": "#/components/parameters/PageSize"
+          },
+          {
+            "$ref": "#/components/parameters/PageNumber"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of cities",
+            "content": {
+              "application/json": {
+                "$ref": "#/components/schemas/PaginatedCities"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Cities"
+        ],
+        "summary": "Create city",
+        "operationId": "createCity",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CityInput"
+              },
+              "example": {
+                "name": "SAO PAULO",
+                "state_id": 1
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Created city",
+            "content": {
+              "application/json": {
+                "$ref": "#/components/schemas/City"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/city/{city}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/CityIdPath"
+        }
+      ],
+      "get": {
+        "tags": [
+          "Cities"
+        ],
+        "summary": "Get city",
+        "operationId": "getCity",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IncludeCities"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "City details",
+            "content": {
+              "application/json": {
+                "$ref": "#/components/schemas/City"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Cities"
+        ],
+        "summary": "Update city",
+        "operationId": "updateCity",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CityUpdateInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated city",
+            "content": {
+              "application/json": {
+                "$ref": "#/components/schemas/City"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "Cities"
+        ],
+        "summary": "Partially update city",
+        "operationId": "patchCity",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CityUpdateInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated city",
+            "content": {
+              "application/json": {
+                "$ref": "#/components/schemas/City"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Cities"
+        ],
+        "summary": "Delete city",
+        "operationId": "deleteCity",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "City removed"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
           }
         }
       }
     }
   },
   "components": {
+    "schemas": {
+      "LoginInput": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "admin@example.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "User password",
+            "example": "admin"
+          },
+          "remember_me": {
+            "type": "boolean",
+            "description": "Keeps the session alive for longer if true."
+          },
+          "driver": {
+            "type": "string",
+            "enum": [
+              "jwt"
+            ],
+            "default": "jwt",
+            "description": "Authentication driver. Only jwt is supported."
+          }
+        }
+      },
+      "RegisterInput": {
+        "type": "object",
+        "required": [
+          "name",
+          "email",
+          "password",
+          "password_confirmation"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "example": "Admin"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "admin@example.com"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8,
+            "example": "admin"
+          },
+          "password_confirmation": {
+            "type": "string",
+            "description": "Must match the password field"
+          }
+        }
+      },
+      "AuthToken": {
+        "type": "object",
+        "required": [
+          "token"
+        ],
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "JWT token"
+          }
+        }
+      },
+      "AuthUser": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "email",
+          "active_role",
+          "roles",
+          "permissions"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Admin"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "admin@example.com"
+          },
+          "active_role": {
+            "type": "string",
+            "example": "admin"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "MessageResponse": {
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "email"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Admin"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "admin@example.com"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Returned when ?include=roles is provided.",
+            "nullable": true
+          },
+          "roles_count": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Returned when the roles count is requested."
+          },
+          "roles_exists": {
+            "type": "boolean",
+            "nullable": true,
+            "description": "Returned when the roles existence flag is requested."
+          }
+        }
+      },
+      "UserInput": {
+        "type": "object",
+        "required": [
+          "name",
+          "email",
+          "password",
+          "password_confirmation"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8
+          },
+          "password_confirmation": {
+            "type": "string"
+          }
+        }
+      },
+      "UserUpdateInput": {
+        "type": "object",
+        "required": [
+          "name",
+          "email"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          }
+        }
+      },
+      "AssignRolesInput": {
+        "type": "object",
+        "required": [
+          "roles"
+        ],
+        "properties": {
+          "roles": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ActiveRoleInput": {
+        "type": "object",
+        "required": [
+          "role"
+        ],
+        "properties": {
+          "role": {
+            "type": "string",
+            "description": "Role slug that already belongs to the authenticated user"
+          }
+        }
+      },
+      "Country": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "code"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "BRAZIL"
+          },
+          "code": {
+            "type": "string",
+            "maxLength": 3,
+            "example": "BRA"
+          }
+        }
+      },
+      "CountryInput": {
+        "type": "object",
+        "required": [
+          "name",
+          "code"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255,
+            "description": "Will be uppercased automatically"
+          },
+          "code": {
+            "type": "string",
+            "maxLength": 3,
+            "description": "ISO-like uppercase code"
+          }
+        }
+      },
+      "CountryUpdateInput": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "code": {
+            "type": "string",
+            "maxLength": 3
+          }
+        }
+      },
+      "State": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "code",
+          "country_id"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string",
+            "example": "SAO PAULO"
+          },
+          "code": {
+            "type": "string",
+            "maxLength": 2,
+            "example": "SP"
+          },
+          "country_id": {
+            "type": "integer"
+          },
+          "country": {
+            "$ref": "#/components/schemas/Country"
+          }
+        }
+      },
+      "StateInput": {
+        "type": "object",
+        "required": [
+          "name",
+          "code",
+          "country_id"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "code": {
+            "type": "string",
+            "maxLength": 2
+          },
+          "country_id": {
+            "type": "integer"
+          }
+        }
+      },
+      "StateUpdateInput": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "code": {
+            "type": "string",
+            "maxLength": 2
+          },
+          "country_id": {
+            "type": "integer"
+          }
+        }
+      },
+      "City": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "state_id"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "name": {
+            "type": "string",
+            "example": "SAO PAULO"
+          },
+          "state_id": {
+            "type": "integer"
+          },
+          "state": {
+            "$ref": "#/components/schemas/State"
+          }
+        }
+      },
+      "CityInput": {
+        "type": "object",
+        "required": [
+          "name",
+          "state_id"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "state_id": {
+            "type": "integer"
+          }
+        }
+      },
+      "CityUpdateInput": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 255
+          },
+          "state_id": {
+            "type": "integer"
+          }
+        }
+      },
+      "PaginatedUsers": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/User"
+            }
+          },
+          "links": {
+            "$ref": "#/components/schemas/PaginationLinks"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMeta"
+          }
+        }
+      },
+      "PaginatedCountries": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Country"
+            }
+          },
+          "links": {
+            "$ref": "#/components/schemas/PaginationLinks"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMeta"
+          }
+        }
+      },
+      "PaginatedStates": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/State"
+            }
+          },
+          "links": {
+            "$ref": "#/components/schemas/PaginationLinks"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMeta"
+          }
+        }
+      },
+      "PaginatedCities": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/City"
+            }
+          },
+          "links": {
+            "$ref": "#/components/schemas/PaginationLinks"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/PaginationMeta"
+          }
+        }
+      },
+      "PaginationLinks": {
+        "type": "object",
+        "properties": {
+          "first": {
+            "type": "string",
+            "format": "uri"
+          },
+          "last": {
+            "type": "string",
+            "format": "uri"
+          },
+          "prev": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uri"
+          },
+          "next": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uri"
+          }
+        }
+      },
+      "PaginationMeta": {
+        "type": "object",
+        "properties": {
+          "current_page": {
+            "type": "integer"
+          },
+          "from": {
+            "type": "integer"
+          },
+          "last_page": {
+            "type": "integer"
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PaginationMetaLink"
+            }
+          },
+          "path": {
+            "type": "string",
+            "format": "uri"
+          },
+          "per_page": {
+            "type": "integer"
+          },
+          "to": {
+            "type": "integer"
+          },
+          "total": {
+            "type": "integer"
+          }
+        }
+      },
+      "PaginationMetaLink": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uri"
+          },
+          "label": {
+            "type": "string"
+          },
+          "page": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "active": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        }
+      },
+      "ValidationErrorResponse": {
+        "type": "object",
+        "required": [
+          "error",
+          "errors"
+        ],
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters": {
+      "UserIdPath": {
+        "name": "user",
+        "in": "path",
+        "required": true,
+        "description": "ID of the user",
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "CountryIdPath": {
+        "name": "country",
+        "in": "path",
+        "required": true,
+        "description": "ID of the country",
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "StateIdPath": {
+        "name": "state",
+        "in": "path",
+        "required": true,
+        "description": "ID of the state",
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "CityIdPath": {
+        "name": "city",
+        "in": "path",
+        "required": true,
+        "description": "ID of the city",
+        "schema": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "FilterUserId": {
+        "name": "filter[id]",
+        "in": "query",
+        "schema": {
+          "type": "integer"
+        },
+        "description": "Filter users by exact id"
+      },
+      "FilterUserName": {
+        "name": "filter[name]",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Filter users by name"
+      },
+      "FilterUserEmail": {
+        "name": "filter[email]",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "format": "email"
+        },
+        "description": "Filter users by email"
+      },
+      "FilterUserSearch": {
+        "name": "filter[search]",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Search users by id or name"
+      },
+      "IncludeUsers": {
+        "name": "include",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "example": "roles"
+        },
+        "description": "Comma-separated relations to eager load. Allowed value: roles"
+      },
+      "SortUsers": {
+        "name": "sort",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "example": "name,-email"
+        },
+        "description": "Comma-separated sortable fields (id, name, email). Prefix with - for descending order"
+      },
+      "PageSize": {
+        "name": "page[size]",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "example": 10
+        },
+        "description": "Number of items per page"
+      },
+      "PageNumber": {
+        "name": "page[number]",
+        "in": "query",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "example": 1
+        },
+        "description": "Page number to retrieve"
+      },
+      "FilterCountryName": {
+        "name": "filter[name]",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Filter countries by name"
+      },
+      "FilterCountryCode": {
+        "name": "filter[code]",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Filter countries by code"
+      },
+      "FilterCountrySearch": {
+        "name": "filter[search]",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Search countries by name or code"
+      },
+      "FilterStateName": {
+        "name": "filter[name]",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Filter states by name"
+      },
+      "FilterStateCode": {
+        "name": "filter[code]",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Filter states by code"
+      },
+      "FilterStateSearch": {
+        "name": "filter[search]",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Search states by name, code, or related country"
+      },
+      "IncludeStates": {
+        "name": "include",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "example": "country"
+        },
+        "description": "Comma-separated relations to eager load. Allowed value: country"
+      },
+      "FilterCityName": {
+        "name": "filter[name]",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Filter cities by name"
+      },
+      "FilterCityStateName": {
+        "name": "filter[state.name]",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Filter cities by state name"
+      },
+      "FilterCityStateCode": {
+        "name": "filter[state.code]",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Filter cities by state code"
+      },
+      "FilterCityStateId": {
+        "name": "filter[state_id]",
+        "in": "query",
+        "schema": {
+          "type": "integer"
+        },
+        "description": "Filter cities by state id"
+      },
+      "FilterCitySearch": {
+        "name": "filter[search]",
+        "in": "query",
+        "schema": {
+          "type": "string"
+        },
+        "description": "Search cities by name or state information"
+      },
+      "IncludeCities": {
+        "name": "include",
+        "in": "query",
+        "schema": {
+          "type": "string",
+          "example": "state,state.country"
+        },
+        "description": "Comma-separated relations to eager load. Allowed values: state, state.country"
+      }
+    },
+    "responses": {
+      "UnauthorizedError": {
+        "description": "Unauthorized",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "error": "Unauthenticated."
+            }
+          }
+        }
+      },
+      "ValidationError": {
+        "description": "Validation error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ValidationErrorResponse"
+            },
+            "example": {
+              "error": "The given data was invalid.",
+              "errors": {
+                "email": [
+                  "The email field is required."
+                ]
+              }
+            }
+          }
+        }
+      },
+      "NotFoundError": {
+        "description": "Not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "error": "The requested resource was not found."
+            }
+          }
+        }
+      },
+      "ServerError": {
+        "description": "Server error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "error": "Internal server error."
+            }
+          }
+        }
+      }
+    },
     "securitySchemes": {
       "bearerAuth": {
         "type": "http",
@@ -1398,10 +2260,5 @@
         "bearerFormat": "JWT"
       }
     }
-  },
-  "security": [
-    {
-      "bearerAuth": []
-    }
-  ]
+  }
 }
