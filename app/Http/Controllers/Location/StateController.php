@@ -51,7 +51,7 @@ class StateController extends Controller
     public function show(State $state)
     {
         $state = QueryBuilder::for(State::class)
-            ->allowedIncludes(['pais'])
+            ->allowedIncludes(['country'])
             ->find($state->id);
 
         return new StateResource($state);
