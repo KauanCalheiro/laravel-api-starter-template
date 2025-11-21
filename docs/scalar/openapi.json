@@ -3,7 +3,7 @@
   "info": {
     "title": "Laravel API Starter",
     "version": "1.0.0",
-    "description": "HTTP API for authentication, user management."
+    "description": "HTTP API for authentication, session handling, and user management."
   },
   "servers": [
     {
@@ -22,18 +22,6 @@
     {
       "name": "User Roles",
       "description": "Role assignment helpers for users"
-    },
-    {
-      "name": "Countries",
-      "description": "Country registry"
-    },
-    {
-      "name": "States",
-      "description": "State/region registry"
-    },
-    {
-      "name": "Cities",
-      "description": "City registry"
     }
   ],
   "paths": {
@@ -42,36 +30,24 @@
         "tags": [
           "Auth"
         ],
-        "summary": "Authenticate with email and password",
-        "description": "Validates the provided credentials and returns a JWT token.",
-        "operationId": "loginWithEmail",
-        "security": [],
+        "summary": "Login with credentials",
+        "operationId": "login",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/LoginInput"
-              },
-              "example": {
-                "email": "admin@example.com",
-                "password": "admin",
-                "remember_me": true
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Authentication token",
+            "description": "Login successful",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AuthToken"
-                },
-                "example": {
-                  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
-                }
+                "$ref": "#/components/schemas/AuthToken"
               }
             }
           },
@@ -80,9 +56,6 @@
           },
           "422": {
             "$ref": "#/components/responses/ValidationError"
-          },
-          "500": {
-            "$ref": "#/components/responses/ServerError"
           }
         }
       }
@@ -93,44 +66,28 @@
           "Auth"
         ],
         "summary": "Register a new user",
-        "description": "Creates a new user account and immediately returns a JWT token for the created user.",
-        "operationId": "registerUser",
-        "security": [],
+        "operationId": "register",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/RegisterInput"
-              },
-              "example": {
-                "name": "Admin",
-                "email": "admin@example.com",
-                "password": "admin",
-                "password_confirmation": "admin"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Authentication token",
+            "description": "User registered",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AuthToken"
-                },
-                "example": {
-                  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9..."
-                }
+                "$ref": "#/components/schemas/AuthUser"
               }
             }
           },
           "422": {
             "$ref": "#/components/responses/ValidationError"
-          },
-          "500": {
-            "$ref": "#/components/responses/ServerError"
           }
         }
       }
@@ -140,7 +97,7 @@
         "tags": [
           "Auth"
         ],
-        "summary": "Get the authenticated user",
+        "summary": "Get authenticated profile",
         "operationId": "getAuthenticatedUser",
         "security": [
           {
@@ -152,25 +109,7 @@
             "description": "Authenticated user profile",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AuthUser"
-                },
-                "example": {
-                  "id": 1,
-                  "name": "Admin",
-                  "email": "admin@example.com",
-                  "active_role": "admin",
-                  "roles": [
-                    "admin",
-                    "user"
-                  ],
-                  "permissions": [
-                    "user.create",
-                    "user.read",
-                    "user.update",
-                    "user.delete"
-                  ]
-                }
+                "$ref": "#/components/schemas/AuthUser"
               }
             }
           },
@@ -185,8 +124,8 @@
         "tags": [
           "Auth"
         ],
-        "summary": "Logout",
-        "operationId": "logoutUser",
+        "summary": "Invalidate current token",
+        "operationId": "logout",
         "security": [
           {
             "bearerAuth": []
@@ -197,12 +136,7 @@
             "description": "Logout confirmation",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MessageResponse"
-                },
-                "example": {
-                  "message": "Logged out successfully"
-                }
+                "$ref": "#/components/schemas/MessageResponse"
               }
             }
           },
@@ -213,13 +147,12 @@
       }
     },
     "/auth/active-role": {
-      "post": {
+      "put": {
         "tags": [
           "Auth"
         ],
-        "summary": "Set active role",
-        "description": "Updates the authenticated user's active role to one of the roles already granted to them.",
-        "operationId": "setActiveRole",
+        "summary": "Switch active role",
+        "operationId": "switchActiveRole",
         "security": [
           {
             "bearerAuth": []
@@ -231,26 +164,24 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/ActiveRoleInput"
-              },
-              "example": {
-                "role": "admin"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Updated authenticated user",
+            "description": "Updated user with active role",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AuthUser"
-                }
+                "$ref": "#/components/schemas/AuthUser"
               }
             }
           },
           "401": {
             "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenError"
           },
           "422": {
             "$ref": "#/components/responses/ValidationError"
@@ -298,12 +229,10 @@
         ],
         "responses": {
           "200": {
-            "description": "Paginated list of users",
+            "description": "Paginated user list",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PaginatedUsers"
-                }
+                "$ref": "#/components/schemas/PaginatedUsers"
               }
             }
           },
@@ -329,12 +258,6 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/UserInput"
-              },
-              "example": {
-                "name": "Jane Doe",
-                "email": "jane@example.com",
-                "password": "admin",
-                "password_confirmation": "admin"
               }
             }
           }
@@ -344,9 +267,7 @@
             "description": "Created user",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/User"
-                }
+                "$ref": "#/components/schemas/User"
               }
             }
           },
@@ -369,8 +290,8 @@
         "tags": [
           "Users"
         ],
-        "summary": "Get user by id",
-        "operationId": "getUserById",
+        "summary": "Get user",
+        "operationId": "getUser",
         "security": [
           {
             "bearerAuth": []
@@ -386,9 +307,7 @@
             "description": "User details",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/User"
-                }
+                "$ref": "#/components/schemas/User"
               }
             }
           },
@@ -404,8 +323,8 @@
         "tags": [
           "Users"
         ],
-        "summary": "Update user",
-        "operationId": "updateUser",
+        "summary": "Replace user",
+        "operationId": "replaceUser",
         "security": [
           {
             "bearerAuth": []
@@ -416,11 +335,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/UserUpdateInput"
-              },
-              "example": {
-                "name": "Jane Doe",
-                "email": "jane.updated@example.com"
+                "$ref": "#/components/schemas/UserInput"
               }
             }
           }
@@ -430,9 +345,7 @@
             "description": "Updated user",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/User"
-                }
+                "$ref": "#/components/schemas/User"
               }
             }
           },
@@ -451,8 +364,8 @@
         "tags": [
           "Users"
         ],
-        "summary": "Partially update user",
-        "operationId": "patchUser",
+        "summary": "Update user",
+        "operationId": "updateUser",
         "security": [
           {
             "bearerAuth": []
@@ -473,9 +386,7 @@
             "description": "Updated user",
             "content": {
               "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/User"
-                }
+                "$ref": "#/components/schemas/User"
               }
             }
           },
@@ -503,7 +414,7 @@
         ],
         "responses": {
           "204": {
-            "description": "User removed"
+            "description": "User deleted"
           },
           "401": {
             "$ref": "#/components/responses/UnauthorizedError"
@@ -515,20 +426,20 @@
       }
     },
     "/user/{user}/roles/assign": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/UserIdPath"
-        }
-      ],
       "post": {
         "tags": [
           "User Roles"
         ],
         "summary": "Assign roles to user",
-        "operationId": "assignRolesToUser",
+        "operationId": "assignRoles",
         "security": [
           {
             "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/UserIdPath"
           }
         ],
         "requestBody": {
@@ -537,67 +448,6 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/AssignRolesInput"
-              },
-              "example": {
-                "roles": [
-                  "admin",
-                  "user"
-                ]
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "User with updated roles",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/User"
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFoundError"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
-      }
-    },
-    "/user/{user}/roles/revoke": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/UserIdPath"
-        }
-      ],
-      "post": {
-        "tags": [
-          "User Roles"
-        ],
-        "summary": "Revoke roles from user",
-        "operationId": "revokeRolesFromUser",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AssignRolesInput"
-              },
-              "example": {
-                "roles": [
-                  "user"
-                ]
               }
             }
           }
@@ -614,6 +464,60 @@
           "401": {
             "$ref": "#/components/responses/UnauthorizedError"
           },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/user/{user}/roles/revoke": {
+      "post": {
+        "tags": [
+          "User Roles"
+        ],
+        "summary": "Revoke roles from user",
+        "operationId": "revokeRoles",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/UserIdPath"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssignRolesInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User with updated roles",
+            "content": {
+              "application/json": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenError"
+          },
           "404": {
             "$ref": "#/components/responses/NotFoundError"
           },
@@ -624,20 +528,20 @@
       }
     },
     "/user/{user}/roles/sync": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/UserIdPath"
-        }
-      ],
       "post": {
         "tags": [
           "User Roles"
         ],
-        "summary": "Sync roles on user",
-        "operationId": "syncRolesOnUser",
+        "summary": "Sync user roles",
+        "operationId": "syncRoles",
         "security": [
           {
             "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/UserIdPath"
           }
         ],
         "requestBody": {
@@ -646,12 +550,6 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/AssignRolesInput"
-              },
-              "example": {
-                "roles": [
-                  "manager",
-                  "user"
-                ]
               }
             }
           }
@@ -668,712 +566,14 @@
           "401": {
             "$ref": "#/components/responses/UnauthorizedError"
           },
-          "404": {
-            "$ref": "#/components/responses/NotFoundError"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
-      }
-    },
-    "/country": {
-      "get": {
-        "tags": [
-          "Countries"
-        ],
-        "summary": "List countries",
-        "operationId": "listCountries",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/FilterCountryName"
-          },
-          {
-            "$ref": "#/components/parameters/FilterCountryCode"
-          },
-          {
-            "$ref": "#/components/parameters/FilterCountrySearch"
-          },
-          {
-            "$ref": "#/components/parameters/PageSize"
-          },
-          {
-            "$ref": "#/components/parameters/PageNumber"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Paginated list of countries",
-            "content": {
-              "application/json": {
-                "$ref": "#/components/schemas/PaginatedCountries"
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "Countries"
-        ],
-        "summary": "Create country",
-        "operationId": "createCountry",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CountryInput"
-              },
-              "example": {
-                "name": "BRAZIL",
-                "code": "BRA"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Created country",
-            "content": {
-              "application/json": {
-                "$ref": "#/components/schemas/Country"
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
-      }
-    },
-    "/country/{country}": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/CountryIdPath"
-        }
-      ],
-      "get": {
-        "tags": [
-          "Countries"
-        ],
-        "summary": "Get country",
-        "operationId": "getCountry",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Country details",
-            "content": {
-              "application/json": {
-                "$ref": "#/components/schemas/Country"
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFoundError"
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "Countries"
-        ],
-        "summary": "Update country",
-        "operationId": "updateCountry",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CountryUpdateInput"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Updated country",
-            "content": {
-              "application/json": {
-                "$ref": "#/components/schemas/Country"
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
+          "403": {
+            "$ref": "#/components/responses/ForbiddenError"
           },
           "404": {
             "$ref": "#/components/responses/NotFoundError"
           },
           "422": {
             "$ref": "#/components/responses/ValidationError"
-          }
-        }
-      },
-      "patch": {
-        "tags": [
-          "Countries"
-        ],
-        "summary": "Partially update country",
-        "operationId": "patchCountry",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CountryUpdateInput"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Updated country",
-            "content": {
-              "application/json": {
-                "$ref": "#/components/schemas/Country"
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFoundError"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Countries"
-        ],
-        "summary": "Delete country",
-        "operationId": "deleteCountry",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Country removed"
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFoundError"
-          }
-        }
-      }
-    },
-    "/state": {
-      "get": {
-        "tags": [
-          "States"
-        ],
-        "summary": "List states",
-        "operationId": "listStates",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/FilterStateName"
-          },
-          {
-            "$ref": "#/components/parameters/FilterStateCode"
-          },
-          {
-            "$ref": "#/components/parameters/FilterStateSearch"
-          },
-          {
-            "$ref": "#/components/parameters/IncludeStates"
-          },
-          {
-            "$ref": "#/components/parameters/PageSize"
-          },
-          {
-            "$ref": "#/components/parameters/PageNumber"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Paginated list of states",
-            "content": {
-              "application/json": {
-                "$ref": "#/components/schemas/PaginatedStates"
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "States"
-        ],
-        "summary": "Create state",
-        "operationId": "createState",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/StateInput"
-              },
-              "example": {
-                "name": "SAO PAULO",
-                "code": "SP",
-                "country_id": 1
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Created state",
-            "content": {
-              "application/json": {
-                "$ref": "#/components/schemas/State"
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
-      }
-    },
-    "/state/{state}": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/StateIdPath"
-        }
-      ],
-      "get": {
-        "tags": [
-          "States"
-        ],
-        "summary": "Get state",
-        "operationId": "getState",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/IncludeStates"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "State details",
-            "content": {
-              "application/json": {
-                "$ref": "#/components/schemas/State"
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFoundError"
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "States"
-        ],
-        "summary": "Update state",
-        "operationId": "updateState",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/StateUpdateInput"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Updated state",
-            "content": {
-              "application/json": {
-                "$ref": "#/components/schemas/State"
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFoundError"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
-      },
-      "patch": {
-        "tags": [
-          "States"
-        ],
-        "summary": "Partially update state",
-        "operationId": "patchState",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/StateUpdateInput"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Updated state",
-            "content": {
-              "application/json": {
-                "$ref": "#/components/schemas/State"
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFoundError"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "States"
-        ],
-        "summary": "Delete state",
-        "operationId": "deleteState",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "State removed"
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFoundError"
-          }
-        }
-      }
-    },
-    "/city": {
-      "get": {
-        "tags": [
-          "Cities"
-        ],
-        "summary": "List cities",
-        "operationId": "listCities",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/FilterCityName"
-          },
-          {
-            "$ref": "#/components/parameters/FilterCityStateName"
-          },
-          {
-            "$ref": "#/components/parameters/FilterCityStateCode"
-          },
-          {
-            "$ref": "#/components/parameters/FilterCityStateId"
-          },
-          {
-            "$ref": "#/components/parameters/FilterCitySearch"
-          },
-          {
-            "$ref": "#/components/parameters/IncludeCities"
-          },
-          {
-            "$ref": "#/components/parameters/PageSize"
-          },
-          {
-            "$ref": "#/components/parameters/PageNumber"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Paginated list of cities",
-            "content": {
-              "application/json": {
-                "$ref": "#/components/schemas/PaginatedCities"
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "Cities"
-        ],
-        "summary": "Create city",
-        "operationId": "createCity",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CityInput"
-              },
-              "example": {
-                "name": "SAO PAULO",
-                "state_id": 1
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Created city",
-            "content": {
-              "application/json": {
-                "$ref": "#/components/schemas/City"
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
-      }
-    },
-    "/city/{city}": {
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/CityIdPath"
-        }
-      ],
-      "get": {
-        "tags": [
-          "Cities"
-        ],
-        "summary": "Get city",
-        "operationId": "getCity",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/IncludeCities"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "City details",
-            "content": {
-              "application/json": {
-                "$ref": "#/components/schemas/City"
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFoundError"
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "Cities"
-        ],
-        "summary": "Update city",
-        "operationId": "updateCity",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CityUpdateInput"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Updated city",
-            "content": {
-              "application/json": {
-                "$ref": "#/components/schemas/City"
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFoundError"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
-      },
-      "patch": {
-        "tags": [
-          "Cities"
-        ],
-        "summary": "Partially update city",
-        "operationId": "patchCity",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CityUpdateInput"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Updated city",
-            "content": {
-              "application/json": {
-                "$ref": "#/components/schemas/City"
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFoundError"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Cities"
-        ],
-        "summary": "Delete city",
-        "operationId": "deleteCity",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "City removed"
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFoundError"
           }
         }
       }
@@ -1390,25 +590,11 @@
         "properties": {
           "email": {
             "type": "string",
-            "format": "email",
-            "example": "admin@example.com"
+            "format": "email"
           },
           "password": {
             "type": "string",
-            "description": "User password",
-            "example": "admin"
-          },
-          "remember_me": {
-            "type": "boolean",
-            "description": "Keeps the session alive for longer if true."
-          },
-          "driver": {
-            "type": "string",
-            "enum": [
-              "jwt"
-            ],
-            "default": "jwt",
-            "description": "Authentication driver. Only jwt is supported."
+            "format": "password"
           }
         }
       },
@@ -1423,34 +609,42 @@
         "properties": {
           "name": {
             "type": "string",
-            "maxLength": 255,
-            "example": "Admin"
+            "maxLength": 255
           },
           "email": {
             "type": "string",
-            "format": "email",
-            "example": "admin@example.com"
+            "format": "email"
           },
           "password": {
             "type": "string",
-            "minLength": 8,
-            "example": "admin"
+            "format": "password",
+            "minLength": 8
           },
           "password_confirmation": {
             "type": "string",
-            "description": "Must match the password field"
+            "format": "password",
+            "description": "Must match password"
           }
         }
       },
       "AuthToken": {
         "type": "object",
         "required": [
-          "token"
+          "access_token",
+          "token_type",
+          "expires_in"
         ],
         "properties": {
-          "token": {
+          "access_token": {
+            "type": "string"
+          },
+          "token_type": {
             "type": "string",
-            "description": "JWT token"
+            "example": "bearer"
+          },
+          "expires_in": {
+            "type": "integer",
+            "description": "Expiration in seconds"
           }
         }
       },
@@ -1460,27 +654,19 @@
           "id",
           "name",
           "email",
-          "active_role",
           "roles",
           "permissions"
         ],
         "properties": {
           "id": {
-            "type": "integer",
-            "example": 1
+            "type": "integer"
           },
           "name": {
-            "type": "string",
-            "example": "Admin"
+            "type": "string"
           },
           "email": {
             "type": "string",
-            "format": "email",
-            "example": "admin@example.com"
-          },
-          "active_role": {
-            "type": "string",
-            "example": "admin"
+            "format": "email"
           },
           "roles": {
             "type": "array",
@@ -1493,14 +679,15 @@
             "items": {
               "type": "string"
             }
+          },
+          "active_role": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
       "MessageResponse": {
         "type": "object",
-        "required": [
-          "message"
-        ],
         "properties": {
           "message": {
             "type": "string"
@@ -1512,39 +699,47 @@
         "required": [
           "id",
           "name",
-          "email"
+          "email",
+          "roles",
+          "permissions",
+          "created_at",
+          "updated_at"
         ],
         "properties": {
           "id": {
-            "type": "integer",
-            "example": 1
+            "type": "integer"
           },
           "name": {
-            "type": "string",
-            "example": "Admin"
+            "type": "string"
           },
           "email": {
             "type": "string",
-            "format": "email",
-            "example": "admin@example.com"
+            "format": "email"
+          },
+          "email_verified_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
           },
           "roles": {
             "type": "array",
             "items": {
               "type": "string"
-            },
-            "description": "Returned when ?include=roles is provided.",
-            "nullable": true
+            }
           },
-          "roles_count": {
-            "type": "integer",
-            "nullable": true,
-            "description": "Returned when the roles count is requested."
+          "permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           },
-          "roles_exists": {
-            "type": "boolean",
-            "nullable": true,
-            "description": "Returned when the roles existence flag is requested."
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },
@@ -1567,19 +762,25 @@
           },
           "password": {
             "type": "string",
+            "format": "password",
             "minLength": 8
           },
           "password_confirmation": {
-            "type": "string"
+            "type": "string",
+            "format": "password",
+            "description": "Must match password"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Optional roles to attach"
           }
         }
       },
       "UserUpdateInput": {
         "type": "object",
-        "required": [
-          "name",
-          "email"
-        ],
         "properties": {
           "name": {
             "type": "string",
@@ -1588,6 +789,22 @@
           "email": {
             "type": "string",
             "format": "email"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "minLength": 8
+          },
+          "password_confirmation": {
+            "type": "string",
+            "format": "password",
+            "description": "Must match password when provided"
+          },
+          "roles": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },
@@ -1599,10 +816,10 @@
         "properties": {
           "roles": {
             "type": "array",
-            "minItems": 1,
             "items": {
               "type": "string"
-            }
+            },
+            "minItems": 1
           }
         }
       },
@@ -1613,180 +830,7 @@
         ],
         "properties": {
           "role": {
-            "type": "string",
-            "description": "Role slug that already belongs to the authenticated user"
-          }
-        }
-      },
-      "Country": {
-        "type": "object",
-        "required": [
-          "id",
-          "name",
-          "code"
-        ],
-        "properties": {
-          "id": {
-            "type": "integer",
-            "example": 1
-          },
-          "name": {
-            "type": "string",
-            "example": "BRAZIL"
-          },
-          "code": {
-            "type": "string",
-            "maxLength": 3,
-            "example": "BRA"
-          }
-        }
-      },
-      "CountryInput": {
-        "type": "object",
-        "required": [
-          "name",
-          "code"
-        ],
-        "properties": {
-          "name": {
-            "type": "string",
-            "maxLength": 255,
-            "description": "Will be uppercased automatically"
-          },
-          "code": {
-            "type": "string",
-            "maxLength": 3,
-            "description": "ISO-like uppercase code"
-          }
-        }
-      },
-      "CountryUpdateInput": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "maxLength": 255
-          },
-          "code": {
-            "type": "string",
-            "maxLength": 3
-          }
-        }
-      },
-      "State": {
-        "type": "object",
-        "required": [
-          "id",
-          "name",
-          "code",
-          "country_id"
-        ],
-        "properties": {
-          "id": {
-            "type": "integer"
-          },
-          "name": {
-            "type": "string",
-            "example": "SAO PAULO"
-          },
-          "code": {
-            "type": "string",
-            "maxLength": 2,
-            "example": "SP"
-          },
-          "country_id": {
-            "type": "integer"
-          },
-          "country": {
-            "$ref": "#/components/schemas/Country"
-          }
-        }
-      },
-      "StateInput": {
-        "type": "object",
-        "required": [
-          "name",
-          "code",
-          "country_id"
-        ],
-        "properties": {
-          "name": {
-            "type": "string",
-            "maxLength": 255
-          },
-          "code": {
-            "type": "string",
-            "maxLength": 2
-          },
-          "country_id": {
-            "type": "integer"
-          }
-        }
-      },
-      "StateUpdateInput": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "maxLength": 255
-          },
-          "code": {
-            "type": "string",
-            "maxLength": 2
-          },
-          "country_id": {
-            "type": "integer"
-          }
-        }
-      },
-      "City": {
-        "type": "object",
-        "required": [
-          "id",
-          "name",
-          "state_id"
-        ],
-        "properties": {
-          "id": {
-            "type": "integer"
-          },
-          "name": {
-            "type": "string",
-            "example": "SAO PAULO"
-          },
-          "state_id": {
-            "type": "integer"
-          },
-          "state": {
-            "$ref": "#/components/schemas/State"
-          }
-        }
-      },
-      "CityInput": {
-        "type": "object",
-        "required": [
-          "name",
-          "state_id"
-        ],
-        "properties": {
-          "name": {
-            "type": "string",
-            "maxLength": 255
-          },
-          "state_id": {
-            "type": "integer"
-          }
-        }
-      },
-      "CityUpdateInput": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "maxLength": 255
-          },
-          "state_id": {
-            "type": "integer"
+            "type": "string"
           }
         }
       },
@@ -1807,81 +851,28 @@
           }
         }
       },
-      "PaginatedCountries": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Country"
-            }
-          },
-          "links": {
-            "$ref": "#/components/schemas/PaginationLinks"
-          },
-          "meta": {
-            "$ref": "#/components/schemas/PaginationMeta"
-          }
-        }
-      },
-      "PaginatedStates": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/State"
-            }
-          },
-          "links": {
-            "$ref": "#/components/schemas/PaginationLinks"
-          },
-          "meta": {
-            "$ref": "#/components/schemas/PaginationMeta"
-          }
-        }
-      },
-      "PaginatedCities": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/City"
-            }
-          },
-          "links": {
-            "$ref": "#/components/schemas/PaginationLinks"
-          },
-          "meta": {
-            "$ref": "#/components/schemas/PaginationMeta"
-          }
-        }
-      },
       "PaginationLinks": {
         "type": "object",
         "properties": {
           "first": {
             "type": "string",
-            "format": "uri"
+            "format": "uri",
+            "nullable": true
           },
           "last": {
             "type": "string",
-            "format": "uri"
+            "format": "uri",
+            "nullable": true
           },
           "prev": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "format": "uri"
+            "type": "string",
+            "format": "uri",
+            "nullable": true
           },
           "next": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "format": "uri"
+            "type": "string",
+            "format": "uri",
+            "nullable": true
           }
         }
       },
@@ -1892,7 +883,8 @@
             "type": "integer"
           },
           "from": {
-            "type": "integer"
+            "type": "integer",
+            "nullable": true
           },
           "last_page": {
             "type": "integer"
@@ -1904,14 +896,14 @@
             }
           },
           "path": {
-            "type": "string",
-            "format": "uri"
+            "type": "string"
           },
           "per_page": {
             "type": "integer"
           },
           "to": {
-            "type": "integer"
+            "type": "integer",
+            "nullable": true
           },
           "total": {
             "type": "integer"
@@ -1922,20 +914,11 @@
         "type": "object",
         "properties": {
           "url": {
-            "type": [
-              "string",
-              "null"
-            ],
-            "format": "uri"
+            "type": "string",
+            "nullable": true
           },
           "label": {
             "type": "string"
-          },
-          "page": {
-            "type": [
-              "integer",
-              "null"
-            ]
           },
           "active": {
             "type": "boolean"
@@ -1944,24 +927,18 @@
       },
       "ErrorResponse": {
         "type": "object",
-        "required": [
-          "error"
-        ],
         "properties": {
-          "error": {
+          "message": {
             "type": "string"
           }
         }
       },
       "ValidationErrorResponse": {
         "type": "object",
-        "required": [
-          "error",
-          "errors"
-        ],
         "properties": {
-          "error": {
-            "type": "string"
+          "message": {
+            "type": "string",
+            "example": "The given data was invalid."
           },
           "errors": {
             "type": "object",
@@ -1980,37 +957,7 @@
         "name": "user",
         "in": "path",
         "required": true,
-        "description": "ID of the user",
-        "schema": {
-          "type": "integer",
-          "minimum": 1
-        }
-      },
-      "CountryIdPath": {
-        "name": "country",
-        "in": "path",
-        "required": true,
-        "description": "ID of the country",
-        "schema": {
-          "type": "integer",
-          "minimum": 1
-        }
-      },
-      "StateIdPath": {
-        "name": "state",
-        "in": "path",
-        "required": true,
-        "description": "ID of the state",
-        "schema": {
-          "type": "integer",
-          "minimum": 1
-        }
-      },
-      "CityIdPath": {
-        "name": "city",
-        "in": "path",
-        "required": true,
-        "description": "ID of the city",
+        "description": "User ID",
         "schema": {
           "type": "integer",
           "minimum": 1
@@ -2022,7 +969,7 @@
         "schema": {
           "type": "integer"
         },
-        "description": "Filter users by exact id"
+        "description": "Filter by user id"
       },
       "FilterUserName": {
         "name": "filter[name]",
@@ -2030,7 +977,7 @@
         "schema": {
           "type": "string"
         },
-        "description": "Filter users by name"
+        "description": "Filter by user name"
       },
       "FilterUserEmail": {
         "name": "filter[email]",
@@ -2039,7 +986,7 @@
           "type": "string",
           "format": "email"
         },
-        "description": "Filter users by email"
+        "description": "Filter by email"
       },
       "FilterUserSearch": {
         "name": "filter[search]",
@@ -2047,25 +994,25 @@
         "schema": {
           "type": "string"
         },
-        "description": "Search users by id or name"
+        "description": "Search by name or email"
       },
       "IncludeUsers": {
         "name": "include",
         "in": "query",
         "schema": {
           "type": "string",
-          "example": "roles"
+          "example": "roles,permissions"
         },
-        "description": "Comma-separated relations to eager load. Allowed value: roles"
+        "description": "Comma separated relations. Allowed: roles, permissions"
       },
       "SortUsers": {
         "name": "sort",
         "in": "query",
         "schema": {
           "type": "string",
-          "example": "name,-email"
+          "example": "-created_at"
         },
-        "description": "Comma-separated sortable fields (id, name, email). Prefix with - for descending order"
+        "description": "Sortable columns: id, name, email, created_at, updated_at. Prefix with '-' for descending."
       },
       "PageSize": {
         "name": "page[size]",
@@ -2073,9 +1020,10 @@
         "schema": {
           "type": "integer",
           "minimum": 1,
-          "example": 10
+          "maximum": 100,
+          "default": 15
         },
-        "description": "Number of items per page"
+        "description": "Items per page"
       },
       "PageNumber": {
         "name": "page[number]",
@@ -2083,172 +1031,41 @@
         "schema": {
           "type": "integer",
           "minimum": 1,
-          "example": 1
+          "default": 1
         },
-        "description": "Page number to retrieve"
-      },
-      "FilterCountryName": {
-        "name": "filter[name]",
-        "in": "query",
-        "schema": {
-          "type": "string"
-        },
-        "description": "Filter countries by name"
-      },
-      "FilterCountryCode": {
-        "name": "filter[code]",
-        "in": "query",
-        "schema": {
-          "type": "string"
-        },
-        "description": "Filter countries by code"
-      },
-      "FilterCountrySearch": {
-        "name": "filter[search]",
-        "in": "query",
-        "schema": {
-          "type": "string"
-        },
-        "description": "Search countries by name or code"
-      },
-      "FilterStateName": {
-        "name": "filter[name]",
-        "in": "query",
-        "schema": {
-          "type": "string"
-        },
-        "description": "Filter states by name"
-      },
-      "FilterStateCode": {
-        "name": "filter[code]",
-        "in": "query",
-        "schema": {
-          "type": "string"
-        },
-        "description": "Filter states by code"
-      },
-      "FilterStateSearch": {
-        "name": "filter[search]",
-        "in": "query",
-        "schema": {
-          "type": "string"
-        },
-        "description": "Search states by name, code, or related country"
-      },
-      "IncludeStates": {
-        "name": "include",
-        "in": "query",
-        "schema": {
-          "type": "string",
-          "example": "country"
-        },
-        "description": "Comma-separated relations to eager load. Allowed value: country"
-      },
-      "FilterCityName": {
-        "name": "filter[name]",
-        "in": "query",
-        "schema": {
-          "type": "string"
-        },
-        "description": "Filter cities by name"
-      },
-      "FilterCityStateName": {
-        "name": "filter[state.name]",
-        "in": "query",
-        "schema": {
-          "type": "string"
-        },
-        "description": "Filter cities by state name"
-      },
-      "FilterCityStateCode": {
-        "name": "filter[state.code]",
-        "in": "query",
-        "schema": {
-          "type": "string"
-        },
-        "description": "Filter cities by state code"
-      },
-      "FilterCityStateId": {
-        "name": "filter[state_id]",
-        "in": "query",
-        "schema": {
-          "type": "integer"
-        },
-        "description": "Filter cities by state id"
-      },
-      "FilterCitySearch": {
-        "name": "filter[search]",
-        "in": "query",
-        "schema": {
-          "type": "string"
-        },
-        "description": "Search cities by name or state information"
-      },
-      "IncludeCities": {
-        "name": "include",
-        "in": "query",
-        "schema": {
-          "type": "string",
-          "example": "state,state.country"
-        },
-        "description": "Comma-separated relations to eager load. Allowed values: state, state.country"
+        "description": "Current page"
       }
     },
     "responses": {
       "UnauthorizedError": {
-        "description": "Unauthorized",
+        "description": "Authentication required",
         "content": {
           "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/ErrorResponse"
-            },
-            "example": {
-              "error": "Unauthenticated."
-            }
+            "$ref": "#/components/schemas/ErrorResponse"
           }
         }
       },
-      "ValidationError": {
-        "description": "Validation error",
+      "ForbiddenError": {
+        "description": "User lacks permission",
         "content": {
           "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/ValidationErrorResponse"
-            },
-            "example": {
-              "error": "The given data was invalid.",
-              "errors": {
-                "email": [
-                  "The email field is required."
-                ]
-              }
-            }
+            "$ref": "#/components/schemas/ErrorResponse"
           }
         }
       },
       "NotFoundError": {
-        "description": "Not found",
+        "description": "Resource not found",
         "content": {
           "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/ErrorResponse"
-            },
-            "example": {
-              "error": "The requested resource was not found."
-            }
+            "$ref": "#/components/schemas/ErrorResponse"
           }
         }
       },
-      "ServerError": {
-        "description": "Server error",
+      "ValidationError": {
+        "description": "Validation failed",
         "content": {
           "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/ErrorResponse"
-            },
-            "example": {
-              "error": "Internal server error."
-            }
+            "$ref": "#/components/schemas/ValidationErrorResponse"
           }
         }
       }
