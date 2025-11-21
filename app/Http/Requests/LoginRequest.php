@@ -18,17 +18,8 @@ class LoginRequest extends FormRequest
         $driver = $this->input('driver', 'jwt');
 
         return match($driver) {
-            'jwt'    => $this->jwtRules(),
-            'google' => $this->googleRules(),
+            'jwt' => $this->jwtRules(),
         };
-    }
-
-    private function googleRules()
-    {
-        return [
-            'token'  => ['required', 'string'],
-            'driver' => ['in:jwt,google'],
-        ];
     }
 
     private function jwtRules()
@@ -37,7 +28,7 @@ class LoginRequest extends FormRequest
             'email'       => ['required', 'string', 'email'],
             'password'    => ['required', 'string'],
             'remember_me' => ['boolean'],
-            'driver'      => ['in:jwt,google'],
+            'driver'      => ['in:jwt'],
         ];
     }
 }
