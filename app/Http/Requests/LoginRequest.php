@@ -17,9 +17,9 @@ class LoginRequest extends FormRequest
     {
         $driver = $this->input('driver', 'jwt');
 
-        return match(true) {
-            $driver === 'jwt'    => $this->jwtRules(),
-            $driver === 'google' => $this->googleRules(),
+        return match($driver) {
+            'jwt'    => $this->jwtRules(),
+            'google' => $this->googleRules(),
         };
     }
 
