@@ -140,7 +140,10 @@ class AuthTest extends TestCase
 
         $response = $this->get(route('auth.impersonate', $this->user->getKey()));
 
-        $response->assertJsonStructure(JsonError::STRUCTURE);
+        $response->assertJsonStructure(JsonError::STRUCTURE)
+            ->assertJsonFragment([
+                'error' => __('impersonate.cannot.impersonate_yourself'),
+            ]);
     }
 
     public function test_impersonation_nested_error()
@@ -158,7 +161,10 @@ class AuthTest extends TestCase
         $response = $this->withHeaders(['Authorization' => "Bearer {$token}"])
             ->get(route('auth.impersonate', $anotherUser->getKey()));
 
-        $response->assertJsonStructure(JsonError::STRUCTURE);
+        $response->assertJsonStructure(JsonError::STRUCTURE)
+            ->assertJsonFragment([
+                'error' => __('impersonate.already_impersonating'),
+            ]);
     }
 
     public function test_unimpersonation()
@@ -190,6 +196,9 @@ class AuthTest extends TestCase
 
         $response = $this->get(route('auth.unimpersonate'));
 
-        $response->assertJsonStructure(JsonError::STRUCTURE);
+        $response->assertJsonStructure(JsonError::STRUCTURE)
+            ->assertJsonFragment([
+                'error' => __('impersonate.not_impersonating_anyone'),
+            ]);
     }
 }

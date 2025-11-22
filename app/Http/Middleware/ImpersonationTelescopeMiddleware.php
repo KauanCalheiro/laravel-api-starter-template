@@ -19,7 +19,7 @@ class ImpersonationTelescopeMiddleware
             $payload = Auth::payload();
 
             if (blank($payload)) {
-                throw new RuntimeException('No JWT payload found');
+                throw new RuntimeException(__('impersonate.jwt_payload_missing'));
             }
 
             $key = app(ImpersonateManager::class)->getSessionKey();
@@ -27,13 +27,13 @@ class ImpersonationTelescopeMiddleware
             $impersonatorId = $payload->get($key, null);
 
             if (blank($impersonatorId)) {
-                throw new RuntimeException('No impersonation data found in token');
+                throw new RuntimeException(__('impersonate.impersonation_data_missing'));
             }
 
             $impersonator = User::find($impersonatorId);
 
             if (!$impersonator) {
-                throw new RuntimeException('Impersonator user not found');
+                throw new RuntimeException(__('impersonate.impersonator_not_found'));
             }
 
             Telescope::tag(function () use ($impersonator) {
