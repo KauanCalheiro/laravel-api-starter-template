@@ -6,6 +6,7 @@ use App\Models\User;
 use Auth;
 use Lab404\Impersonate\Models\Impersonate;
 use Lab404\Impersonate\Services\ImpersonateManager;
+use RuntimeException;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Payload;
 
@@ -29,19 +30,19 @@ trait JwtImpersonate
     public function impersonate(User $to): string
     {
         if (!$this->canImpersonate()) {
-            throw new \RuntimeException('User cannot impersonate this target');
+            throw new RuntimeException('User cannot impersonate this target');
         }
 
         if (!$to->canBeImpersonated()) {
-            throw new \RuntimeException('Target user cannot be impersonated');
+            throw new RuntimeException('Target user cannot be impersonated');
         }
 
         if ($this->id === $to->id) {
-            throw new \RuntimeException('Cannot impersonate yourself');
+            throw new RuntimeException('Cannot impersonate yourself');
         }
 
         if ($this->isImpersonated()) {
-            throw new \RuntimeException('Already impersonating another user');
+            throw new RuntimeException('Already impersonating another user');
         }
 
         $key = $this->getImpersonateKey();
@@ -58,7 +59,7 @@ trait JwtImpersonate
         $user = Auth::user();
 
         if (blank($user)) {
-            throw new \RuntimeException('No authenticated user found');
+            throw new RuntimeException('No authenticated user found');
         }
 
         $payload = $this->getJwtPayload();
@@ -66,7 +67,7 @@ trait JwtImpersonate
         $impersonatorId = $payload->get($this->getImpersonateKey());
 
         if (!$impersonatorId) {
-            throw new \RuntimeException('This token is not impersonating anyone');
+            throw new RuntimeException('This token is not impersonating anyone');
         }
 
         $impersonator = User::findOrFail($impersonatorId);
