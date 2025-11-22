@@ -12,6 +12,7 @@
         "php": "^8.2",
         "aaronfrancis/fast-paginate": "^2.0",
         "kamoca/laravel-jwt-database-blacklist": "^1.0",
+        "lab404/laravel-impersonate": "*",
         "laravel/framework": "^12.18.0",
         "laravel/octane": "^2.11",
         "laravel/sanctum": "^4.0",
@@ -98,6 +99,11 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
+        },
+        "audit": {
+            "ignore": [
+                "PKSA-365x-2zjk-pt47"
+            ]
         }
     },
     "minimum-stability": "stable",

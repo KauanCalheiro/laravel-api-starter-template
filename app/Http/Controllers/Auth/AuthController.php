@@ -58,4 +58,14 @@ class AuthController extends Controller
 
         return $this->user();
     }
+
+    public function impersonate(User $user)
+    {
+        return ['token' => Auth::user()->impersonate($user)];
+    }
+
+    public function unimpersonate()
+    {
+        return ['token' => Auth::user()->leaveImpersonation()];
+    }
 }

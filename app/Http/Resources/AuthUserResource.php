@@ -15,12 +15,14 @@ class AuthUserResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'          => $this->id,
-            'name'        => $this->name,
-            'email'       => $this->email,
-            'active_role' => $this->active_role,
-            'roles'       => $this->roles->pluck('name'),
-            'permissions' => $this->roles->pluck('permissions')->flatten()->pluck('name'),
+            'id'              => $this->id,
+            'name'            => $this->name,
+            'email'           => $this->email,
+            'active_role'     => $this->active_role,
+            'roles'           => $this->roles->pluck('name'),
+            'permissions'     => $this->roles->pluck('permissions')->flatten()->pluck('name'),
+            'is_impersonated' => $this->isImpersonated(),
+            'can_impersonate' => $this->canImpersonate(),
         ];
     }
 }

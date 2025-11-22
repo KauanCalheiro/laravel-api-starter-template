@@ -13,6 +13,7 @@ trait Authenticatable
     {
         /** @var AuthenticatableContract $authenticationInstance */
         $authenticationInstance = new $handler($this);
-        $authenticationInstance->autenticate($role);
+
+        $this->user = $authenticationInstance->authenticate($role);
     }
 }

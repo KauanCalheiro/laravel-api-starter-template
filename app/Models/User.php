@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Traits\HasActiveRole;
+use App\Traits\JwtImpersonate;
 use App\Traits\LogsAll;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -22,6 +23,7 @@ class User extends Authenticatable implements JWTSubject
     use LogsAll;
     use HasActiveRole;
     use SoftDeletes;
+    use JwtImpersonate;
 
     protected $table = 'users';
 
@@ -60,5 +62,15 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         return [];
+    }
+
+    public function canImpersonate(): bool
+    {
+        return true;
+    }
+
+    public function canBeImpersonated(): bool
+    {
+        return true;
     }
 }
