@@ -22,6 +22,7 @@ class AuthUserResource extends JsonResource
             'roles'           => $this->roles->pluck('name'),
             'permissions'     => $this->roles->pluck('permissions')->flatten()->pluck('name'),
             'is_impersonated' => $this->isImpersonated(),
+            'can_impersonate' => $this->canImpersonate(),
         ];
     }
 }
