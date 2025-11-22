@@ -5,12 +5,16 @@ namespace Tests\Feature;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Helpers\Auth\JwtApiAuthenticatable;
+use Tests\Helpers\JsonError;
 use Tests\TestCase;
+use Tests\Trait\Authenticatable;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthTest extends TestCase
 {
     use RefreshDatabase;
+    use Authenticatable;
 
     protected function setUp(): void
     {
@@ -104,5 +108,88 @@ class AuthTest extends TestCase
             __('auth.login.failed_with_message', ['message' => '']),
             $response->json()['error'],
         );
+    }
+
+    public function test_impersonation()
+    {
+        $this->authenticate(JwtApiAuthenticatable::class);
+
+        $user = User::whereKeyNot($this->user->getKey())->first();
+
+        $response = $this->get(route('auth.impersonate', $user->getKey()));
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'token',
+            ]);
+    }
+
+    public function test_impersonation_unauthenticated()
+    {
+        $response = $this->get(route('auth.impersonate', User::first()->getKey()));
+
+        $response->assertStatus(401)
+            ->assertJson([
+                'error' => __('auth.unauthenticated'),
+            ]);
+    }
+
+    public function test_self_impersonation_error()
+    {
+        $this->authenticate(JwtApiAuthenticatable::class);
+
+        $response = $this->get(route('auth.impersonate', $this->user->getKey()));
+
+        $response->assertJsonStructure(JsonError::STRUCTURE);
+    }
+
+    public function test_impersonation_nested_error()
+    {
+        $this->authenticate(JwtApiAuthenticatable::class);
+
+        $userToImpersonate = User::whereKeyNot($this->user->getKey())->first();
+
+        $response = $this->get(route('auth.impersonate', $userToImpersonate->getKey()));
+
+        $token = $response->json()['token'];
+
+        $anotherUser = User::whereNotIn('id', [$this->user->getKey(), $userToImpersonate->getKey()])->first();
+
+        $response = $this->withHeaders(['Authorization' => "Bearer {$token}"])
+            ->get(route('auth.impersonate', $anotherUser->getKey()));
+
+        $response->assertJsonStructure(JsonError::STRUCTURE);
+    }
+
+    public function test_unimpersonation()
+    {
+        $this->authenticate(JwtApiAuthenticatable::class);
+
+        $userToImpersonate = User::whereKeyNot($this->user->getKey())->first();
+
+        $response = $this->get(route('auth.impersonate', $userToImpersonate->getKey()));
+
+        if (!$response->isSuccessful()) {
+            $this->fail($response->json()['message']);
+        }
+
+        $token = $response->json()['token'];
+
+        $response = $this->withHeaders(['Authorization' => "Bearer {$token}"])
+            ->get(route('auth.unimpersonate'));
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'token',
+            ]);
+    }
+
+    public function test_unimpersonation_without_impersonation_error()
+    {
+        $this->authenticate(JwtApiAuthenticatable::class);
+
+        $response = $this->get(route('auth.unimpersonate'));
+
+        $response->assertJsonStructure(JsonError::STRUCTURE);
     }
 }
