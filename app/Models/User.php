@@ -63,4 +63,14 @@ class User extends Authenticatable implements JWTSubject
     {
         return [];
     }
+
+    public function canImpersonate(): bool
+    {
+        return true;
+    }
+
+    public function canBeImpersonated(): bool
+    {
+        return true;
+    }
 }
