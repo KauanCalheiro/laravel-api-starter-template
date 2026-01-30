@@ -82,7 +82,7 @@
             "description": "User registered",
             "content": {
               "application/json": {
-                "$ref": "#/components/schemas/AuthUser"
+                "$ref": "#/components/schemas/AuthToken"
               }
             }
           },
@@ -147,7 +147,7 @@
       }
     },
     "/auth/active-role": {
-      "put": {
+      "post": {
         "tags": [
           "Auth"
         ],
@@ -718,21 +718,12 @@
       "AuthToken": {
         "type": "object",
         "required": [
-          "access_token",
-          "token_type",
-          "expires_in"
+          "token"
         ],
         "properties": {
-          "access_token": {
-            "type": "string"
-          },
-          "token_type": {
+          "token": {
             "type": "string",
-            "example": "bearer"
-          },
-          "expires_in": {
-            "type": "integer",
-            "description": "Expiration in seconds"
+            "description": "JWT authentication token"
           }
         }
       },
@@ -1089,18 +1080,18 @@
         "in": "query",
         "schema": {
           "type": "string",
-          "example": "roles,permissions"
+          "example": "roles"
         },
-        "description": "Comma separated relations. Allowed: roles, permissions"
+        "description": "Comma separated relations. Allowed: roles"
       },
       "SortUsers": {
         "name": "sort",
         "in": "query",
         "schema": {
           "type": "string",
-          "example": "-created_at"
+          "example": "-id"
         },
-        "description": "Sortable columns: id, name, email, created_at, updated_at. Prefix with '-' for descending."
+        "description": "Sortable columns: id, name, email. Prefix with '-' for descending."
       },
       "PageSize": {
         "name": "page[size]",
