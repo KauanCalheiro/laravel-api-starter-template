@@ -11,6 +11,7 @@ php artisan key:generate --force
 php artisan jwt:secret --force
 touch database/database.sqlite
 php artisan migrate:fresh --seed
+composer helpers
 ```
 
 By default, the project uses SQLite. Ensure `DB_CONNECTION=sqlite` and `DB_DATABASE=./database/database.sqlite` in `.env`.

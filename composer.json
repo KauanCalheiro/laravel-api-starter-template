@@ -27,6 +27,7 @@
         "tymon/jwt-auth": "^2.2"
     },
     "require-dev": {
+        "barryvdh/laravel-ide-helper": "^3.6",
         "fakerphp/faker": "^1.23",
         "friendsofphp/php-cs-fixer": "^3.75",
         "laravel/pail": "^1.1",
@@ -85,7 +86,8 @@
             "php artisan migrate",
             "php artisan db:seed",
             "php artisan app:sync-roles-permissions"
-        ]
+        ],
+        "helpers": "php artisan ide-helper:generate -n && php artisan ide-helper:models -n && php artisan ide-helper:meta -n"
     },
     "extra": {
         "laravel": {
