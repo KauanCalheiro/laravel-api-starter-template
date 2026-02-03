@@ -10,7 +10,7 @@ Route::prefix('v1')->group(function () {
         Route::post('register', [AuthController::class, 'register'])->name('auth.register');
 
         Route::middleware('auth:api')->group(function () {
-            Route::get('user', [AuthController::class, 'user'])->name('auth.user');
+            Route::get('me', [AuthController::class, 'me'])->name('auth.me');
             Route::get('impersonate/take/{user}', [AuthController::class,'impersonate'])->name('auth.impersonate');
             Route::get('impersonate/leave', [AuthController::class,'unimpersonate'])->name('auth.unimpersonate');
             Route::post('logout', [AuthController::class, 'logout'])->name('auth.logout');

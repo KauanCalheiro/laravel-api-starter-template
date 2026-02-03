@@ -27,7 +27,7 @@ class AuthController extends Controller
         });
     }
 
-    public function user()
+    public function me()
     {
         return new AuthUserResource(Auth::user());
     }
