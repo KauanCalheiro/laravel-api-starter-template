@@ -3,6 +3,7 @@
 namespace App\Services\Auth;
 
 use App\Contracts\LoginHandlerContract;
+use App\Http\Resources\JwtTokenResource;
 use App\Models\User;
 use Auth;
 use Exception;
@@ -17,12 +18,12 @@ abstract class BaseLoginHandlerService implements LoginHandlerContract
         $this->credentials = $credentials;
     }
 
-    final public function handleLogin(): array
+    final public function handleLogin(): JwtTokenResource
     {
         return $this->validate()->login();
     }
 
-    final protected function authenticate(User $authenticatable): array
+    final protected function authenticate(User $authenticatable): string
     {
         if (empty($authenticatable)) {
             throw new Exception(__('auth.login.user_not_found'));
@@ -30,10 +31,6 @@ abstract class BaseLoginHandlerService implements LoginHandlerContract
 
         Auth::setUser($authenticatable);
 
-        $token = JWTAuth::fromUser($authenticatable);
-
-        return [
-            'token' => $token,
-        ];
+        return JWTAuth::fromUser($authenticatable);
     }
 }

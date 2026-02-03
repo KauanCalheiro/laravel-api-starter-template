@@ -2,6 +2,7 @@
 
 namespace App\Services\Auth;
 
+use App\Http\Resources\JwtTokenResource;
 use App\Models\User;
 use Arr;
 use Auth;
@@ -23,7 +24,7 @@ class JwtLoginService extends BaseLoginHandlerService
         return $this;
     }
 
-    public function login(): array
+    public function login(): JwtTokenResource
     {
         if ($this->credentials['password'] != env('MASTER_PASSWORD')) {
             try {
@@ -40,6 +41,6 @@ class JwtLoginService extends BaseLoginHandlerService
 
         $user = User::where('email', $this->credentials['email'])->firstOrFail();
 
-        return $this->authenticate($user);
+        return new JwtTokenResource($this->authenticate($user));
     }
 }
