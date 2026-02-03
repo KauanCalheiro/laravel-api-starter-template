@@ -56,7 +56,7 @@ class AuthController extends Controller
 
         Auth::user()->setActiveRole($role);
 
-        return $this->user();
+        return $this->me();
     }
 
     public function impersonate(User $user)
