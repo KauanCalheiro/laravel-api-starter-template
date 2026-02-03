@@ -7,12 +7,14 @@ use App\Http\Requests\ActiveRoleRequest;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Resources\AuthUserResource;
+use App\Http\Resources\JwtTokenResource;
 use App\Models\Auth\Role;
 use App\Models\User;
 use App\Services\Auth\AuthService;
 use App\Services\Validation\FormRequestFactory;
 use Auth;
 use DB;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
@@ -39,6 +41,13 @@ class AuthController extends Controller
         return ['message' => __('auth.logout.success')];
     }
 
+    public function refresh()
+    {
+        $token = JWTAuth::setToken(JWTAuth::fromUser(Auth::user()))->refresh();
+
+        return new JwtTokenResource($token);
+    }
+
     public function register(RegisterRequest $request)
     {
         return DB::transaction(function () use ($request) {
@@ -61,11 +70,11 @@ class AuthController extends Controller
 
     public function impersonate(User $user)
     {
-        return ['token' => Auth::user()->impersonate($user)];
+        return new JwtTokenResource(Auth::user()->impersonate($user));
     }
 
     public function unimpersonate()
     {
-        return ['token' => Auth::user()->leaveImpersonation()];
+        return new JwtTokenResource(Auth::user()->leaveImpersonation());
     }
 }

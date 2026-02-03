@@ -42,7 +42,9 @@ class AuthTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJsonStructure([
-                'token',
+                'access_token',
+                'token_type',
+                'expires_in',
             ]);
     }
 
@@ -59,12 +61,31 @@ class AuthTest extends TestCase
             ]);
     }
 
+    public function test_refresh_token_com_sucesso()
+    {
+        $user = User::first();
+
+        $token = $this->generateJwtToken($user);
+
+        $response = $this->withHeaders(['Authorization' => "Bearer {$token}"])
+            ->post(route('auth.refresh'));
+
+        $response->assertStatus(200)
+            ->assertJsonStructure([
+                'access_token',
+                'token_type',
+                'expires_in',
+            ]);
+
+        $this->assertNotSame($token, $response->json()['access_token']);
+    }
+
     public function test_retorna_dados_do_usuario_autenticado()
     {
         $user = User::first();
 
         $response = $this->withHeaders(['Authorization' => "Bearer {$this->generateJwtToken($user)}"])
-            ->get(route('auth.user'));
+            ->get(route('auth.me'));
 
         $userResource = new UserResource($user);
 
@@ -82,7 +103,7 @@ class AuthTest extends TestCase
 
     public function test_erro_usuario_nao_autenticado()
     {
-        $response = $this->get(route('auth.user'));
+        $response = $this->get(route('auth.me'));
 
         $response->assertStatus(401)
             ->assertJson([
@@ -120,7 +141,9 @@ class AuthTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJsonStructure([
-                'token',
+                'access_token',
+                'token_type',
+                'expires_in',
             ]);
     }
 
@@ -154,7 +177,7 @@ class AuthTest extends TestCase
 
         $response = $this->get(route('auth.impersonate', $userToImpersonate->getKey()));
 
-        $token = $response->json()['token'];
+        $token = $response->json()['access_token'];
 
         $anotherUser = User::whereNotIn('id', [$this->user->getKey(), $userToImpersonate->getKey()])->first();
 
@@ -179,14 +202,16 @@ class AuthTest extends TestCase
             $this->fail($response->json()['message']);
         }
 
-        $token = $response->json()['token'];
+        $token = $response->json()['access_token'];
 
         $response = $this->withHeaders(['Authorization' => "Bearer {$token}"])
             ->get(route('auth.unimpersonate'));
 
         $response->assertStatus(200)
             ->assertJsonStructure([
-                'token',
+                'access_token',
+                'token_type',
+                'expires_in',
             ]);
     }
 

@@ -11,6 +11,7 @@ Route::prefix('v1')->group(function () {
 
         Route::middleware('auth:api')->group(function () {
             Route::get('me', [AuthController::class, 'me'])->name('auth.me');
+            Route::post('refresh', [AuthController::class, 'refresh'])->name('auth.refresh');
             Route::get('impersonate/take/{user}', [AuthController::class,'impersonate'])->name('auth.impersonate');
             Route::get('impersonate/leave', [AuthController::class,'unimpersonate'])->name('auth.unimpersonate');
             Route::post('logout', [AuthController::class, 'logout'])->name('auth.logout');
