@@ -3,6 +3,7 @@
 namespace App\Services\Jwt;
 
 use App\Http\Resources\JwtTokenResource;
+use App\Models\JwtToken;
 use App\Models\User;
 use Illuminate\Auth\AuthManager;
 use PHPOpenSourceSaver\JWTAuth\JWTGuard;
@@ -51,16 +52,26 @@ class JwtService
 
     protected function refreshToken(): string
     {
-        return $this->generateToken(config('jwt.refresh_ttl'));
+        return $this->generateToken(config('jwt.refresh_ttl'), 'refresh');
     }
 
     protected function accessToken(): string
     {
-        return $this->generateToken(config('jwt.ttl'));
+        return $this->generateToken(config('jwt.ttl'), 'access');
     }
 
-    private function generateToken(int $ttl): string
+    private function generateToken(int $ttl, string $type): string
     {
-        return $this->auth->setTTL($ttl)->login($this->user);
+        $token = $this->auth->setTTL($ttl)->login($this->user);
+
+        JwtToken::create([
+            'key'        => $this->auth->getPayload()->get('jti'),
+            'value'      => $token,
+            'type'       => $type,
+            'user_id'    => $this->user->id,
+            'expired_at' => now()->addMinutes($ttl)->toDateTimeString(),
+        ]);
+
+        return $token;
     }
 }

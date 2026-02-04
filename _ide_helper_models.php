@@ -71,23 +71,11 @@ namespace App\Models\Auth{
 
 namespace App\Models{
 /**
- * @property int $id
- * @property string $key
- * @property string|null $value
- * @property string|null $expired_at
- * @property \Illuminate\Support\Carbon|null $created_at
- * @property \Illuminate\Support\Carbon|null $updated_at
- * @method static \Illuminate\Database\Eloquent\Builder<static>|JwtBlacklist newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|JwtBlacklist newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|JwtBlacklist query()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|JwtBlacklist whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|JwtBlacklist whereExpiredAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|JwtBlacklist whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|JwtBlacklist whereKey($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|JwtBlacklist whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder<static>|JwtBlacklist whereValue($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|JwtToken newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|JwtToken newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|JwtToken query()
  */
-	class JwtBlacklist extends \Eloquent {}
+	class JwtToken extends \Eloquent {}
 }
 
 namespace App\Models{

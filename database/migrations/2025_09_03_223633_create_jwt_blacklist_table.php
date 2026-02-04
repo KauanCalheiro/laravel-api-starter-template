@@ -4,13 +4,15 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
+return new class () extends Migration {
     public function up(): void
     {
-        Schema::create('jwt_blacklists', function (Blueprint $table) {
+        Schema::create('jwt_tokens', function (Blueprint $table) {
             $table->id();
             $table->text('key');
             $table->text('value')->nullable();
+            $table->text('type'); // 'access' or 'refresh'
+            $table->foreignId('user_id')->constrained('users');
             $table->timestamp('expired_at')->nullable();
             $table->timestamps();
         });
@@ -18,6 +20,6 @@ return new class extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('jwt_blacklists');
+        Schema::dropIfExists('jwt_tokens');
     }
 };

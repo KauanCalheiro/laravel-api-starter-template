@@ -2,7 +2,7 @@
 
 namespace App\Providers\Storage;
 
-use App\Models\JwtBlacklist;
+use App\Models\JwtToken;
 use PHPOpenSourceSaver\JWTAuth\Contracts\Providers\Storage;
 use Str;
 
@@ -11,16 +11,16 @@ class JwtBlacklistStorageProvider implements Storage
     /**
     * The JWT blacklist model instance.
     *
-    * @var JwtBlacklist
+    * @var JwtToken
     */
     protected $blacklist;
 
     /**
      * Constructor.
      *
-     * @param JwtBlacklist $blacklist
+     * @param JwtToken $blacklist
      */
-    public function __construct(JwtBlacklist $blacklist)
+    public function __construct(JwtToken $blacklist)
     {
         $this->blacklist = $blacklist;
     }
@@ -35,11 +35,15 @@ class JwtBlacklistStorageProvider implements Storage
      */
     public function add($key, $value, $minutes)
     {
-        $this->blacklist->create([
-            'key'        => $key,
-            'value'      => $this->toString($value),
-            'expires_at' => now()->addMinutes($minutes),
-        ]);
+        $this->blacklist->updateOrInsert(
+            [
+                'key'   => $key,
+                'value' => $this->toString($value),
+            ],
+            [
+                'expired_at' => now(),
+            ],
+        );
     }
 
     /**
@@ -51,11 +55,7 @@ class JwtBlacklistStorageProvider implements Storage
      */
     public function forever($key, $value)
     {
-        $this->blacklist->create([
-            'key'        => $key,
-            'value'      => $this->toString($value),
-            'expires_at' => null,
-        ]);
+        $this->add($key, $value, 0);
     }
 
     /**
@@ -66,13 +66,15 @@ class JwtBlacklistStorageProvider implements Storage
      */
     public function get($key)
     {
-        $value = $this->blacklist->where('key', $key)->first()?->value;
+        $value = $this->blacklist->where('key', $key)
+        ->where('expired_at', '>', now())
+        ->first()?->value;
 
         if (is_null($value)) {
             return null;
         }
 
-        return $this->fromString($value);
+        return $value;
     }
 
     /**

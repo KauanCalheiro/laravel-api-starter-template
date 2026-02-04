@@ -4,13 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class JwtBlacklist extends Model
+class JwtToken extends Model
 {
-    protected $table = 'jwt_blacklists';
+    protected $table = 'jwt_tokens';
 
     protected $fillable = [
         'key',
         'value',
+        'user_id',
+        'type',
         'expired_at',
     ];
 }
