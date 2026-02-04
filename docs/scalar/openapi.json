@@ -1,1160 +1,1162 @@
 {
-  "openapi": "3.1.0",
-  "info": {
-    "title": "Laravel API Starter",
-    "version": "1.0.0",
-    "description": "HTTP API for authentication, session handling, and user management."
-  },
-  "servers": [
-    {
-      "url": "http://localhost:8000/api/v1"
-    }
-  ],
-  "tags": [
-    {
-      "name": "Auth",
-      "description": "Authentication and session management"
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Laravel API Starter",
+        "version": "1.0.0",
+        "description": "HTTP API for authentication, session handling, and user management."
     },
-    {
-      "name": "Users",
-      "description": "User CRUD and profile endpoints"
-    },
-    {
-      "name": "User Roles",
-      "description": "Role assignment helpers for users"
-    }
-  ],
-  "paths": {
-    "/auth/login": {
-      "post": {
-        "tags": [
-          "Auth"
-        ],
-        "summary": "Login with credentials",
-        "operationId": "login",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/LoginInput"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Login successful",
-            "content": {
-              "application/json": {
-                "$ref": "#/components/schemas/AuthToken"
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
-      }
-    },
-    "/auth/register": {
-      "post": {
-        "tags": [
-          "Auth"
-        ],
-        "summary": "Register a new user",
-        "operationId": "register",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/RegisterInput"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "User registered",
-            "content": {
-              "application/json": {
-                "$ref": "#/components/schemas/AuthToken"
-              }
-            }
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
-      }
-    },
-    "/auth/user": {
-      "get": {
-        "tags": [
-          "Auth"
-        ],
-        "summary": "Get authenticated profile",
-        "operationId": "getAuthenticatedUser",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Authenticated user profile",
-            "content": {
-              "application/json": {
-                "$ref": "#/components/schemas/AuthUser"
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          }
-        }
-      }
-    },
-    "/auth/logout": {
-      "post": {
-        "tags": [
-          "Auth"
-        ],
-        "summary": "Invalidate current token",
-        "operationId": "logout",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Logout confirmation",
-            "content": {
-              "application/json": {
-                "$ref": "#/components/schemas/MessageResponse"
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          }
-        }
-      }
-    },
-    "/auth/active-role": {
-      "post": {
-        "tags": [
-          "Auth"
-        ],
-        "summary": "Switch active role",
-        "operationId": "switchActiveRole",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ActiveRoleInput"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Updated user with active role",
-            "content": {
-              "application/json": {
-                "$ref": "#/components/schemas/AuthUser"
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "403": {
-            "$ref": "#/components/responses/ForbiddenError"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
-      }
-    },
-    "/auth/impersonate/take/{user}": {
-      "get": {
-        "tags": [
-          "Auth"
-        ],
-        "summary": "Impersonate another user",
-        "operationId": "impersonate",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "name": "user",
-            "in": "path",
-            "required": true,
-            "description": "User ID to impersonate",
-            "schema": {
-              "type": "integer",
-              "minimum": 1
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "New token for impersonated user",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "token": {
-                      "type": "string",
-                      "description": "JWT token with impersonation context"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "403": {
-            "$ref": "#/components/responses/ForbiddenError"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFoundError"
-          }
-        }
-      }
-    },
-    "/auth/impersonate/leave": {
-      "get": {
-        "tags": [
-          "Auth"
-        ],
-        "summary": "Leave impersonation mode",
-        "operationId": "unimpersonate",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Token restored to original user",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "token": {
-                      "type": "string",
-                      "description": "JWT token without impersonation"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          }
-        }
-      }
-    },
-    "/user": {
-      "get": {
-        "tags": [
-          "Users"
-        ],
-        "summary": "List users",
-        "operationId": "listUsers",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/FilterUserId"
-          },
-          {
-            "$ref": "#/components/parameters/FilterUserName"
-          },
-          {
-            "$ref": "#/components/parameters/FilterUserEmail"
-          },
-          {
-            "$ref": "#/components/parameters/FilterUserSearch"
-          },
-          {
-            "$ref": "#/components/parameters/IncludeUsers"
-          },
-          {
-            "$ref": "#/components/parameters/SortUsers"
-          },
-          {
-            "$ref": "#/components/parameters/PageSize"
-          },
-          {
-            "$ref": "#/components/parameters/PageNumber"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Paginated user list",
-            "content": {
-              "application/json": {
-                "$ref": "#/components/schemas/PaginatedUsers"
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "Users"
-        ],
-        "summary": "Create user",
-        "operationId": "createUser",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UserInput"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Created user",
-            "content": {
-              "application/json": {
-                "$ref": "#/components/schemas/User"
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
-      }
-    },
-    "/user/{user}": {
-      "parameters": [
+    "servers": [
         {
-          "$ref": "#/components/parameters/UserIdPath"
+            "url": "http://localhost:8000/api/v1"
         }
-      ],
-      "get": {
-        "tags": [
-          "Users"
-        ],
-        "summary": "Get user",
-        "operationId": "getUser",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/IncludeUsers"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "User details",
-            "content": {
-              "application/json": {
-                "$ref": "#/components/schemas/User"
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFoundError"
-          }
-        }
-      },
-      "put": {
-        "tags": [
-          "Users"
-        ],
-        "summary": "Replace user",
-        "operationId": "replaceUser",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UserInput"
-              }
-            }
-          }
+    ],
+    "tags": [
+        {
+            "name": "Auth",
+            "description": "Authentication and session management"
         },
-        "responses": {
-          "200": {
-            "description": "Updated user",
-            "content": {
-              "application/json": {
-                "$ref": "#/components/schemas/User"
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFoundError"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
-      },
-      "patch": {
-        "tags": [
-          "Users"
-        ],
-        "summary": "Update user",
-        "operationId": "updateUser",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UserUpdateInput"
-              }
-            }
-          }
+        {
+            "name": "Users",
+            "description": "User CRUD and profile endpoints"
         },
-        "responses": {
-          "200": {
-            "description": "Updated user",
-            "content": {
-              "application/json": {
-                "$ref": "#/components/schemas/User"
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFoundError"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
+        {
+            "name": "User Roles",
+            "description": "Role assignment helpers for users"
         }
-      },
-      "delete": {
-        "tags": [
-          "Users"
-        ],
-        "summary": "Delete user",
-        "operationId": "deleteUser",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "User deleted"
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFoundError"
-          }
-        }
-      }
-    },
-    "/user/{user}/roles/assign": {
-      "post": {
-        "tags": [
-          "User Roles"
-        ],
-        "summary": "Assign roles to user",
-        "operationId": "assignRoles",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/UserIdPath"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AssignRolesInput"
-              }
+    ],
+    "paths": {
+        "/auth/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login with credentials",
+                "operationId": "login",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoginInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login successful",
+                        "content": {
+                            "application/json": {
+                                "$ref": "#/components/schemas/AuthToken"
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    }
+                }
             }
-          }
         },
-        "responses": {
-          "200": {
-            "description": "User with updated roles",
-            "content": {
-              "application/json": {
-                "$ref": "#/components/schemas/User"
-              }
+        "/auth/register": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Register a new user",
+                "operationId": "register",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/RegisterInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User registered",
+                        "content": {
+                            "application/json": {
+                                "$ref": "#/components/schemas/AuthToken"
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    }
+                }
             }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "403": {
-            "$ref": "#/components/responses/ForbiddenError"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFoundError"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
-      }
-    },
-    "/user/{user}/roles/revoke": {
-      "post": {
-        "tags": [
-          "User Roles"
-        ],
-        "summary": "Revoke roles from user",
-        "operationId": "revokeRoles",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/UserIdPath"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AssignRolesInput"
-              }
-            }
-          }
         },
-        "responses": {
-          "200": {
-            "description": "User with updated roles",
-            "content": {
-              "application/json": {
-                "$ref": "#/components/schemas/User"
-              }
+        "/auth/user": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Get authenticated profile",
+                "operationId": "getAuthenticatedUser",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Authenticated user profile",
+                        "content": {
+                            "application/json": {
+                                "$ref": "#/components/schemas/AuthUser"
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    }
+                }
             }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "403": {
-            "$ref": "#/components/responses/ForbiddenError"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFoundError"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
-      }
-    },
-    "/user/{user}/roles/sync": {
-      "post": {
-        "tags": [
-          "User Roles"
-        ],
-        "summary": "Sync user roles",
-        "operationId": "syncRoles",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/UserIdPath"
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AssignRolesInput"
-              }
-            }
-          }
         },
-        "responses": {
-          "200": {
-            "description": "User with synced roles",
-            "content": {
-              "application/json": {
-                "$ref": "#/components/schemas/User"
-              }
+        "/auth/logout": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Invalidate current token",
+                "operationId": "logout",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Logout confirmation",
+                        "content": {
+                            "application/json": {
+                                "$ref": "#/components/schemas/MessageResponse"
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    }
+                }
             }
-          },
-          "401": {
-            "$ref": "#/components/responses/UnauthorizedError"
-          },
-          "403": {
-            "$ref": "#/components/responses/ForbiddenError"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFoundError"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
-      }
-    }
-  },
-  "components": {
-    "schemas": {
-      "LoginInput": {
-        "type": "object",
-        "required": [
-          "email",
-          "password"
-        ],
-        "properties": {
-          "email": {
-            "type": "string",
-            "format": "email"
-          },
-          "password": {
-            "type": "string",
-            "format": "password"
-          }
-        }
-      },
-      "RegisterInput": {
-        "type": "object",
-        "required": [
-          "name",
-          "email",
-          "password",
-          "password_confirmation"
-        ],
-        "properties": {
-          "name": {
-            "type": "string",
-            "maxLength": 255
-          },
-          "email": {
-            "type": "string",
-            "format": "email"
-          },
-          "password": {
-            "type": "string",
-            "format": "password",
-            "minLength": 8
-          },
-          "password_confirmation": {
-            "type": "string",
-            "format": "password",
-            "description": "Must match password"
-          }
-        }
-      },
-      "AuthToken": {
-        "type": "object",
-        "required": [
-          "token"
-        ],
-        "properties": {
-          "token": {
-            "type": "string",
-            "description": "JWT authentication token"
-          }
-        }
-      },
-      "AuthUser": {
-        "type": "object",
-        "required": [
-          "id",
-          "name",
-          "email",
-          "roles",
-          "permissions"
-        ],
-        "properties": {
-          "id": {
-            "type": "integer"
-          },
-          "name": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string",
-            "format": "email"
-          },
-          "roles": {
-            "type": "array",
-            "items": {
-              "type": "string"
+        },
+        "/auth/active-role": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Switch active role",
+                "operationId": "switchActiveRole",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ActiveRoleInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated user with active role",
+                        "content": {
+                            "application/json": {
+                                "$ref": "#/components/schemas/AuthUser"
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    }
+                }
             }
-          },
-          "permissions": {
-            "type": "array",
-            "items": {
-              "type": "string"
+        },
+        "/auth/impersonate/take/{user}": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Impersonate another user",
+                "operationId": "impersonate",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "path",
+                        "required": true,
+                        "description": "User ID to impersonate",
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "New token for impersonated user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "token": {
+                                            "type": "string",
+                                            "description": "JWT token with impersonation context"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    }
+                }
             }
-          },
-          "active_role": {
-            "type": "string",
-            "nullable": true
-          }
-        }
-      },
-      "MessageResponse": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string"
-          }
-        }
-      },
-      "User": {
-        "type": "object",
-        "required": [
-          "id",
-          "name",
-          "email",
-          "roles",
-          "permissions",
-          "created_at",
-          "updated_at"
-        ],
-        "properties": {
-          "id": {
-            "type": "integer"
-          },
-          "name": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string",
-            "format": "email"
-          },
-          "email_verified_at": {
-            "type": "string",
-            "format": "date-time",
-            "nullable": true
-          },
-          "roles": {
-            "type": "array",
-            "items": {
-              "type": "string"
+        },
+        "/auth/impersonate/leave": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Leave impersonation mode",
+                "operationId": "unimpersonate",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Token restored to original user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "token": {
+                                            "type": "string",
+                                            "description": "JWT token without impersonation"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    }
+                }
             }
-          },
-          "permissions": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "created_at": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "updated_at": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
-      "UserInput": {
-        "type": "object",
-        "required": [
-          "name",
-          "email",
-          "password",
-          "password_confirmation"
-        ],
-        "properties": {
-          "name": {
-            "type": "string",
-            "maxLength": 255
-          },
-          "email": {
-            "type": "string",
-            "format": "email"
-          },
-          "password": {
-            "type": "string",
-            "format": "password",
-            "minLength": 8
-          },
-          "password_confirmation": {
-            "type": "string",
-            "format": "password",
-            "description": "Must match password"
-          },
-          "roles": {
-            "type": "array",
-            "items": {
-              "type": "string"
+        },
+        "/user": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "List users",
+                "operationId": "listUsers",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/FilterUserId"
+                    },
+                    {
+                        "$ref": "#/components/parameters/FilterUserName"
+                    },
+                    {
+                        "$ref": "#/components/parameters/FilterUserEmail"
+                    },
+                    {
+                        "$ref": "#/components/parameters/FilterUserSearch"
+                    },
+                    {
+                        "$ref": "#/components/parameters/IncludeUsers"
+                    },
+                    {
+                        "$ref": "#/components/parameters/SortUsers"
+                    },
+                    {
+                        "$ref": "#/components/parameters/PageSize"
+                    },
+                    {
+                        "$ref": "#/components/parameters/PageNumber"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Paginated user list",
+                        "content": {
+                            "application/json": {
+                                "$ref": "#/components/schemas/PaginatedUsers"
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    }
+                }
             },
-            "description": "Optional roles to attach"
-          }
-        }
-      },
-      "UserUpdateInput": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "maxLength": 255
-          },
-          "email": {
-            "type": "string",
-            "format": "email"
-          },
-          "password": {
-            "type": "string",
-            "format": "password",
-            "minLength": 8
-          },
-          "password_confirmation": {
-            "type": "string",
-            "format": "password",
-            "description": "Must match password when provided"
-          },
-          "roles": {
-            "type": "array",
-            "items": {
-              "type": "string"
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Create user",
+                "operationId": "createUser",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Created user",
+                        "content": {
+                            "application/json": {
+                                "$ref": "#/components/schemas/User"
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    }
+                }
             }
-          }
-        }
-      },
-      "AssignRolesInput": {
-        "type": "object",
-        "required": [
-          "roles"
-        ],
-        "properties": {
-          "roles": {
-            "type": "array",
-            "items": {
-              "type": "string"
+        },
+        "/user/{user}": {
+            "parameters": [
+                {
+                    "$ref": "#/components/parameters/UserIdPath"
+                }
+            ],
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get user",
+                "operationId": "getUser",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/IncludeUsers"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User details",
+                        "content": {
+                            "application/json": {
+                                "$ref": "#/components/schemas/User"
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    }
+                }
             },
-            "minItems": 1
-          }
-        }
-      },
-      "ActiveRoleInput": {
-        "type": "object",
-        "required": [
-          "role"
-        ],
-        "properties": {
-          "role": {
-            "type": "string"
-          }
-        }
-      },
-      "PaginatedUsers": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/User"
+            "put": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Replace user",
+                "operationId": "replaceUser",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated user",
+                        "content": {
+                            "application/json": {
+                                "$ref": "#/components/schemas/User"
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Update user",
+                "operationId": "updateUser",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserUpdateInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Updated user",
+                        "content": {
+                            "application/json": {
+                                "$ref": "#/components/schemas/User"
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Delete user",
+                "operationId": "deleteUser",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "User deleted"
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    }
+                }
             }
-          },
-          "links": {
-            "$ref": "#/components/schemas/PaginationLinks"
-          },
-          "meta": {
-            "$ref": "#/components/schemas/PaginationMeta"
-          }
-        }
-      },
-      "PaginationLinks": {
-        "type": "object",
-        "properties": {
-          "first": {
-            "type": "string",
-            "format": "uri",
-            "nullable": true
-          },
-          "last": {
-            "type": "string",
-            "format": "uri",
-            "nullable": true
-          },
-          "prev": {
-            "type": "string",
-            "format": "uri",
-            "nullable": true
-          },
-          "next": {
-            "type": "string",
-            "format": "uri",
-            "nullable": true
-          }
-        }
-      },
-      "PaginationMeta": {
-        "type": "object",
-        "properties": {
-          "current_page": {
-            "type": "integer"
-          },
-          "from": {
-            "type": "integer",
-            "nullable": true
-          },
-          "last_page": {
-            "type": "integer"
-          },
-          "links": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PaginationMetaLink"
+        },
+        "/user/{user}/roles/assign": {
+            "post": {
+                "tags": [
+                    "User Roles"
+                ],
+                "summary": "Assign roles to user",
+                "operationId": "assignRoles",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/UserIdPath"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AssignRolesInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User with updated roles",
+                        "content": {
+                            "application/json": {
+                                "$ref": "#/components/schemas/User"
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    }
+                }
             }
-          },
-          "path": {
-            "type": "string"
-          },
-          "per_page": {
-            "type": "integer"
-          },
-          "to": {
-            "type": "integer",
-            "nullable": true
-          },
-          "total": {
-            "type": "integer"
-          }
-        }
-      },
-      "PaginationMetaLink": {
-        "type": "object",
-        "properties": {
-          "url": {
-            "type": "string",
-            "nullable": true
-          },
-          "label": {
-            "type": "string"
-          },
-          "active": {
-            "type": "boolean"
-          }
-        }
-      },
-      "ErrorResponse": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string"
-          }
-        }
-      },
-      "ValidationErrorResponse": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string",
-            "example": "The given data was invalid."
-          },
-          "errors": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
+        },
+        "/user/{user}/roles/revoke": {
+            "post": {
+                "tags": [
+                    "User Roles"
+                ],
+                "summary": "Revoke roles from user",
+                "operationId": "revokeRoles",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/UserIdPath"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AssignRolesInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User with updated roles",
+                        "content": {
+                            "application/json": {
+                                "$ref": "#/components/schemas/User"
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    }
+                }
             }
-          }
+        },
+        "/user/{user}/roles/sync": {
+            "post": {
+                "tags": [
+                    "User Roles"
+                ],
+                "summary": "Sync user roles",
+                "operationId": "syncRoles",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/components/parameters/UserIdPath"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AssignRolesInput"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User with synced roles",
+                        "content": {
+                            "application/json": {
+                                "$ref": "#/components/schemas/User"
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
+                    },
+                    "404": {
+                        "$ref": "#/components/responses/NotFoundError"
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationError"
+                    }
+                }
+            }
         }
-      }
     },
-    "parameters": {
-      "UserIdPath": {
-        "name": "user",
-        "in": "path",
-        "required": true,
-        "description": "User ID",
-        "schema": {
-          "type": "integer",
-          "minimum": 1
+    "components": {
+        "schemas": {
+            "LoginInput": {
+                "type": "object",
+                "required": [
+                    "email",
+                    "password"
+                ],
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "admin@example.com"
+                    },
+                    "password": {
+                        "type": "string",
+                        "format": "password",
+                        "example": "admin"
+                    }
+                }
+            },
+            "RegisterInput": {
+                "type": "object",
+                "required": [
+                    "name",
+                    "email",
+                    "password",
+                    "password_confirmation"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "password": {
+                        "type": "string",
+                        "format": "password",
+                        "minLength": 8
+                    },
+                    "password_confirmation": {
+                        "type": "string",
+                        "format": "password",
+                        "description": "Must match password"
+                    }
+                }
+            },
+            "AuthToken": {
+                "type": "object",
+                "required": [
+                    "token"
+                ],
+                "properties": {
+                    "token": {
+                        "type": "string",
+                        "description": "JWT authentication token"
+                    }
+                }
+            },
+            "AuthUser": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "name",
+                    "email",
+                    "roles",
+                    "permissions"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "roles": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "permissions": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "active_role": {
+                        "type": "string",
+                        "nullable": true
+                    }
+                }
+            },
+            "MessageResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                }
+            },
+            "User": {
+                "type": "object",
+                "required": [
+                    "id",
+                    "name",
+                    "email",
+                    "roles",
+                    "permissions",
+                    "created_at",
+                    "updated_at"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "email_verified_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": true
+                    },
+                    "roles": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "permissions": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "UserInput": {
+                "type": "object",
+                "required": [
+                    "name",
+                    "email",
+                    "password",
+                    "password_confirmation"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "password": {
+                        "type": "string",
+                        "format": "password",
+                        "minLength": 8
+                    },
+                    "password_confirmation": {
+                        "type": "string",
+                        "format": "password",
+                        "description": "Must match password"
+                    },
+                    "roles": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "Optional roles to attach"
+                    }
+                }
+            },
+            "UserUpdateInput": {
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 255
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "password": {
+                        "type": "string",
+                        "format": "password",
+                        "minLength": 8
+                    },
+                    "password_confirmation": {
+                        "type": "string",
+                        "format": "password",
+                        "description": "Must match password when provided"
+                    },
+                    "roles": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "AssignRolesInput": {
+                "type": "object",
+                "required": [
+                    "roles"
+                ],
+                "properties": {
+                    "roles": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "minItems": 1
+                    }
+                }
+            },
+            "ActiveRoleInput": {
+                "type": "object",
+                "required": [
+                    "role"
+                ],
+                "properties": {
+                    "role": {
+                        "type": "string"
+                    }
+                }
+            },
+            "PaginatedUsers": {
+                "type": "object",
+                "properties": {
+                    "data": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/User"
+                        }
+                    },
+                    "links": {
+                        "$ref": "#/components/schemas/PaginationLinks"
+                    },
+                    "meta": {
+                        "$ref": "#/components/schemas/PaginationMeta"
+                    }
+                }
+            },
+            "PaginationLinks": {
+                "type": "object",
+                "properties": {
+                    "first": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true
+                    },
+                    "last": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true
+                    },
+                    "prev": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true
+                    },
+                    "next": {
+                        "type": "string",
+                        "format": "uri",
+                        "nullable": true
+                    }
+                }
+            },
+            "PaginationMeta": {
+                "type": "object",
+                "properties": {
+                    "current_page": {
+                        "type": "integer"
+                    },
+                    "from": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "last_page": {
+                        "type": "integer"
+                    },
+                    "links": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PaginationMetaLink"
+                        }
+                    },
+                    "path": {
+                        "type": "string"
+                    },
+                    "per_page": {
+                        "type": "integer"
+                    },
+                    "to": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "total": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "PaginationMetaLink": {
+                "type": "object",
+                "properties": {
+                    "url": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "active": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "ErrorResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                }
+            },
+            "ValidationErrorResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "example": "The given data was invalid."
+                    },
+                    "errors": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "parameters": {
+            "UserIdPath": {
+                "name": "user",
+                "in": "path",
+                "required": true,
+                "description": "User ID",
+                "schema": {
+                    "type": "integer",
+                    "minimum": 1
+                }
+            },
+            "FilterUserId": {
+                "name": "filter[id]",
+                "in": "query",
+                "schema": {
+                    "type": "integer"
+                },
+                "description": "Filter by user id"
+            },
+            "FilterUserName": {
+                "name": "filter[name]",
+                "in": "query",
+                "schema": {
+                    "type": "string"
+                },
+                "description": "Filter by user name"
+            },
+            "FilterUserEmail": {
+                "name": "filter[email]",
+                "in": "query",
+                "schema": {
+                    "type": "string",
+                    "format": "email"
+                },
+                "description": "Filter by email"
+            },
+            "FilterUserSearch": {
+                "name": "filter[search]",
+                "in": "query",
+                "schema": {
+                    "type": "string"
+                },
+                "description": "Search by name or email"
+            },
+            "IncludeUsers": {
+                "name": "include",
+                "in": "query",
+                "schema": {
+                    "type": "string",
+                    "example": "roles"
+                },
+                "description": "Comma separated relations. Allowed: roles"
+            },
+            "SortUsers": {
+                "name": "sort",
+                "in": "query",
+                "schema": {
+                    "type": "string",
+                    "example": "-id"
+                },
+                "description": "Sortable columns: id, name, email. Prefix with '-' for descending."
+            },
+            "PageSize": {
+                "name": "page[size]",
+                "in": "query",
+                "schema": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 100,
+                    "default": 15
+                },
+                "description": "Items per page"
+            },
+            "PageNumber": {
+                "name": "page[number]",
+                "in": "query",
+                "schema": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "default": 1
+                },
+                "description": "Current page"
+            }
+        },
+        "responses": {
+            "UnauthorizedError": {
+                "description": "Authentication required",
+                "content": {
+                    "application/json": {
+                        "$ref": "#/components/schemas/ErrorResponse"
+                    }
+                }
+            },
+            "ForbiddenError": {
+                "description": "User lacks permission",
+                "content": {
+                    "application/json": {
+                        "$ref": "#/components/schemas/ErrorResponse"
+                    }
+                }
+            },
+            "NotFoundError": {
+                "description": "Resource not found",
+                "content": {
+                    "application/json": {
+                        "$ref": "#/components/schemas/ErrorResponse"
+                    }
+                }
+            },
+            "ValidationError": {
+                "description": "Validation failed",
+                "content": {
+                    "application/json": {
+                        "$ref": "#/components/schemas/ValidationErrorResponse"
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
         }
-      },
-      "FilterUserId": {
-        "name": "filter[id]",
-        "in": "query",
-        "schema": {
-          "type": "integer"
-        },
-        "description": "Filter by user id"
-      },
-      "FilterUserName": {
-        "name": "filter[name]",
-        "in": "query",
-        "schema": {
-          "type": "string"
-        },
-        "description": "Filter by user name"
-      },
-      "FilterUserEmail": {
-        "name": "filter[email]",
-        "in": "query",
-        "schema": {
-          "type": "string",
-          "format": "email"
-        },
-        "description": "Filter by email"
-      },
-      "FilterUserSearch": {
-        "name": "filter[search]",
-        "in": "query",
-        "schema": {
-          "type": "string"
-        },
-        "description": "Search by name or email"
-      },
-      "IncludeUsers": {
-        "name": "include",
-        "in": "query",
-        "schema": {
-          "type": "string",
-          "example": "roles"
-        },
-        "description": "Comma separated relations. Allowed: roles"
-      },
-      "SortUsers": {
-        "name": "sort",
-        "in": "query",
-        "schema": {
-          "type": "string",
-          "example": "-id"
-        },
-        "description": "Sortable columns: id, name, email. Prefix with '-' for descending."
-      },
-      "PageSize": {
-        "name": "page[size]",
-        "in": "query",
-        "schema": {
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 100,
-          "default": 15
-        },
-        "description": "Items per page"
-      },
-      "PageNumber": {
-        "name": "page[number]",
-        "in": "query",
-        "schema": {
-          "type": "integer",
-          "minimum": 1,
-          "default": 1
-        },
-        "description": "Current page"
-      }
-    },
-    "responses": {
-      "UnauthorizedError": {
-        "description": "Authentication required",
-        "content": {
-          "application/json": {
-            "$ref": "#/components/schemas/ErrorResponse"
-          }
-        }
-      },
-      "ForbiddenError": {
-        "description": "User lacks permission",
-        "content": {
-          "application/json": {
-            "$ref": "#/components/schemas/ErrorResponse"
-          }
-        }
-      },
-      "NotFoundError": {
-        "description": "Resource not found",
-        "content": {
-          "application/json": {
-            "$ref": "#/components/schemas/ErrorResponse"
-          }
-        }
-      },
-      "ValidationError": {
-        "description": "Validation failed",
-        "content": {
-          "application/json": {
-            "$ref": "#/components/schemas/ValidationErrorResponse"
-          }
-        }
-      }
-    },
-    "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer",
-        "bearerFormat": "JWT"
-      }
     }
-  }
 }
