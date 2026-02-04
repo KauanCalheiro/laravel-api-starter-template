@@ -2221,8 +2221,13 @@ namespace Illuminate\Support\Facades {
 
             }
     /**
+     * @method static bool attempt(array $credentials = [], bool $remember = false)
+     * @method static bool once(array $credentials = [])
+     * @method static void login(\Illuminate\Contracts\Auth\Authenticatable $user, bool $remember = false)
      * @method static \Illuminate\Contracts\Auth\Authenticatable|false loginUsingId(mixed $id, bool $remember = false)
+     * @method static \Illuminate\Contracts\Auth\Authenticatable|false onceUsingId(mixed $id)
      * @method static bool viaRemember()
+     * @method static void logout()
      * @method static \Symfony\Component\HttpFoundation\Response|null basic(string $field = 'email', array $extraConditions = [])
      * @method static \Symfony\Component\HttpFoundation\Response|null onceBasic(string $field = 'email', array $extraConditions = [])
      * @method static bool attemptWhen(array $credentials = [], array|callable|null $callbacks = null, bool $remember = false)
@@ -2230,6 +2235,7 @@ namespace Illuminate\Support\Facades {
      * @method static void logoutCurrentDevice()
      * @method static \Illuminate\Contracts\Auth\Authenticatable|null logoutOtherDevices(string $password)
      * @method static void attempting(mixed $callback)
+     * @method static \Illuminate\Contracts\Auth\Authenticatable getLastAttempted()
      * @method static string getName()
      * @method static string getRecallerName()
      * @method static \Illuminate\Auth\SessionGuard setRememberDuration(int $minutes)
@@ -2238,6 +2244,8 @@ namespace Illuminate\Support\Facades {
      * @method static \Illuminate\Contracts\Events\Dispatcher getDispatcher()
      * @method static void setDispatcher(\Illuminate\Contracts\Events\Dispatcher $events)
      * @method static \Illuminate\Contracts\Session\Session getSession()
+     * @method static \Illuminate\Contracts\Auth\Authenticatable|null getUser()
+     * @method static \Symfony\Component\HttpFoundation\Request getRequest()
      * @method static \Illuminate\Support\Timebox getTimebox()
      * @see \Illuminate\Auth\AuthManager
      * @see \Illuminate\Auth\SessionGuard
@@ -2453,333 +2461,70 @@ namespace Illuminate\Support\Facades {
         }
 
         /**
-         * Get the currently authenticated user.
+         * Get the user for the incoming request.
          *
-         * @return \PHPOpenSourceSaver\JWTAuth\Authenticatable|null
+         * @return \Laravel\Passport\Contracts\OAuthenticatable|null
          * @static
          */
         public static function user()
         {
-            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $instance */
+            /** @var \Laravel\Passport\Guards\TokenGuard $instance */
             return $instance->user();
-        }
-
-        /**
-         * @return int|string|null
-         * @static
-         */
-        public static function getUserId()
-        {
-            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $instance */
-            return $instance->getUserId();
-        }
-
-        /**
-         * Get the ID for the currently authenticated user.
-         *
-         * @return int|string|null
-         * @static
-         */
-        public static function id()
-        {
-            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $instance */
-            return $instance->id();
-        }
-
-        /**
-         * Get the currently authenticated user or throws an exception.
-         *
-         * @return \PHPOpenSourceSaver\JWTAuth\Authenticatable
-         * @throws UserNotDefinedException
-         * @static
-         */
-        public static function userOrFail()
-        {
-            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $instance */
-            return $instance->userOrFail();
         }
 
         /**
          * Validate a user's credentials.
          *
-         * @return bool
+         * @param array<string, mixed> $credentials
          * @static
          */
         public static function validate($credentials = [])
         {
-            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $instance */
+            /** @var \Laravel\Passport\Guards\TokenGuard $instance */
             return $instance->validate($credentials);
         }
 
         /**
-         * Attempt to authenticate the user using the given credentials and return the token.
+         * Get the client for the incoming request.
          *
-         * @param bool $login
-         * @return bool|string
          * @static
          */
-        public static function attempt($credentials = [], $login = true)
+        public static function client()
         {
-            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $instance */
-            return $instance->attempt($credentials, $login);
-        }
-
-        /**
-         * Create a token for a user.
-         *
-         * @return string
-         * @static
-         */
-        public static function login($user)
-        {
-            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $instance */
-            return $instance->login($user);
-        }
-
-        /**
-         * Logout the user, thus invalidating the token.
-         *
-         * @param bool $forceForever
-         * @return void
-         * @static
-         */
-        public static function logout($forceForever = false)
-        {
-            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $instance */
-            $instance->logout($forceForever);
-        }
-
-        /**
-         * Refresh the token.
-         *
-         * @param bool $forceForever
-         * @param bool $resetClaims
-         * @return string
-         * @static
-         */
-        public static function refresh($forceForever = false, $resetClaims = false)
-        {
-            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $instance */
-            return $instance->refresh($forceForever, $resetClaims);
-        }
-
-        /**
-         * Invalidate the token.
-         *
-         * @param bool $forceForever
-         * @return \PHPOpenSourceSaver\JWTAuth\JWT
-         * @static
-         */
-        public static function invalidate($forceForever = false)
-        {
-            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $instance */
-            return $instance->invalidate($forceForever);
-        }
-
-        /**
-         * Create a new token by User id.
-         *
-         * @return string|null
-         * @static
-         */
-        public static function tokenById($id)
-        {
-            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $instance */
-            return $instance->tokenById($id);
-        }
-
-        /**
-         * Log a user into the application using their credentials.
-         *
-         * @return bool
-         * @static
-         */
-        public static function once($credentials = [])
-        {
-            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $instance */
-            return $instance->once($credentials);
-        }
-
-        /**
-         * Log the given User into the application.
-         *
-         * @return bool
-         * @static
-         */
-        public static function onceUsingId($id)
-        {
-            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $instance */
-            return $instance->onceUsingId($id);
-        }
-
-        /**
-         * Alias for onceUsingId.
-         *
-         * @return bool
-         * @static
-         */
-        public static function byId($id)
-        {
-            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $instance */
-            return $instance->byId($id);
-        }
-
-        /**
-         * Add any custom claims.
-         *
-         * @return \PHPOpenSourceSaver\JWTAuth\JWTGuard
-         * @static
-         */
-        public static function claims($claims)
-        {
-            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $instance */
-            return $instance->claims($claims);
-        }
-
-        /**
-         * Get the raw Payload instance.
-         *
-         * @return \PHPOpenSourceSaver\JWTAuth\Payload
-         * @static
-         */
-        public static function getPayload()
-        {
-            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $instance */
-            return $instance->getPayload();
-        }
-
-        /**
-         * Alias for getPayload().
-         *
-         * @return \PHPOpenSourceSaver\JWTAuth\Payload
-         * @static
-         */
-        public static function payload()
-        {
-            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $instance */
-            return $instance->payload();
-        }
-
-        /**
-         * Set the token.
-         *
-         * @param \PHPOpenSourceSaver\JWTAuth\Token|string $token
-         * @return \PHPOpenSourceSaver\JWTAuth\JWTGuard
-         * @static
-         */
-        public static function setToken($token)
-        {
-            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $instance */
-            return $instance->setToken($token);
-        }
-
-        /**
-         * Get the token ttl.
-         *
-         * @return int|null
-         * @static
-         */
-        public static function getTTL()
-        {
-            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $instance */
-            return $instance->getTTL();
-        }
-
-        /**
-         * Set the token ttl.
-         *
-         * @param int|null $ttl
-         * @return \PHPOpenSourceSaver\JWTAuth\JWTGuard
-         * @static
-         */
-        public static function setTTL($ttl)
-        {
-            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $instance */
-            return $instance->setTTL($ttl);
-        }
-
-        /**
-         * Get the user provider used by the guard.
-         *
-         * @return \PHPOpenSourceSaver\JWTAuth\UserProvider
-         * @static
-         */
-        public static function getProvider()
-        {
-            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $instance */
-            return $instance->getProvider();
-        }
-
-        /**
-         * Set the user provider used by the guard.
-         *
-         * @return \PHPOpenSourceSaver\JWTAuth\JWTGuard
-         * @static
-         */
-        public static function setProvider($provider)
-        {
-            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $instance */
-            return $instance->setProvider($provider);
-        }
-
-        /**
-         * Return the currently cached user.
-         *
-         * @return \PHPOpenSourceSaver\JWTAuth\Authenticatable|null
-         * @static
-         */
-        public static function getUser()
-        {
-            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $instance */
-            return $instance->getUser();
-        }
-
-        /**
-         * Set the current user.
-         *
-         * @return \PHPOpenSourceSaver\JWTAuth\JWTGuard
-         * @static
-         */
-        public static function setUser($user)
-        {
-            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $instance */
-            return $instance->setUser($user);
-        }
-
-        /**
-         * Get the current request instance.
-         *
-         * @return \Request
-         * @static
-         */
-        public static function getRequest()
-        {
-            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $instance */
-            return $instance->getRequest();
+            /** @var \Laravel\Passport\Guards\TokenGuard $instance */
+            return $instance->client();
         }
 
         /**
          * Set the current request instance.
          *
-         * @return \PHPOpenSourceSaver\JWTAuth\JWTGuard
          * @static
          */
         public static function setRequest($request)
         {
-            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $instance */
+            /** @var \Laravel\Passport\Guards\TokenGuard $instance */
             return $instance->setRequest($request);
         }
 
         /**
-         * Get the last user we attempted to authenticate.
+         * Determine if the cookie contents should be serialized.
          *
-         * @return \PHPOpenSourceSaver\JWTAuth\Authenticatable
          * @static
          */
-        public static function getLastAttempted()
+        public static function serialized()
         {
-            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $instance */
-            return $instance->getLastAttempted();
+            return \Laravel\Passport\Guards\TokenGuard::serialized();
+        }
+
+        /**
+         * Set the client for the current request.
+         *
+         * @static
+         */
+        public static function setClient($client)
+        {
+            /** @var \Laravel\Passport\Guards\TokenGuard $instance */
+            return $instance->setClient($client);
         }
 
         /**
@@ -2791,7 +2536,7 @@ namespace Illuminate\Support\Facades {
          */
         public static function authenticate()
         {
-            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $instance */
+            /** @var \Laravel\Passport\Guards\TokenGuard $instance */
             return $instance->authenticate();
         }
 
@@ -2803,7 +2548,7 @@ namespace Illuminate\Support\Facades {
          */
         public static function hasUser()
         {
-            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $instance */
+            /** @var \Laravel\Passport\Guards\TokenGuard $instance */
             return $instance->hasUser();
         }
 
@@ -2815,7 +2560,7 @@ namespace Illuminate\Support\Facades {
          */
         public static function check()
         {
-            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $instance */
+            /** @var \Laravel\Passport\Guards\TokenGuard $instance */
             return $instance->check();
         }
 
@@ -2827,33 +2572,70 @@ namespace Illuminate\Support\Facades {
          */
         public static function guest()
         {
-            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $instance */
+            /** @var \Laravel\Passport\Guards\TokenGuard $instance */
             return $instance->guest();
+        }
+
+        /**
+         * Get the ID for the currently authenticated user.
+         *
+         * @return int|string|null
+         * @static
+         */
+        public static function id()
+        {
+            /** @var \Laravel\Passport\Guards\TokenGuard $instance */
+            return $instance->id();
         }
 
         /**
          * Set the current user.
          *
          * @param \Illuminate\Contracts\Auth\Authenticatable $user
-         * @return \PHPOpenSourceSaver\JWTAuth\JWTGuard
+         * @return \Laravel\Passport\Guards\TokenGuard
          * @static
          */
-        public static function guardHelperSetUser($user)
+        public static function setUser($user)
         {
-            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $instance */
-            return $instance->guardHelperSetUser($user);
+            /** @var \Laravel\Passport\Guards\TokenGuard $instance */
+            return $instance->setUser($user);
         }
 
         /**
          * Forget the current user.
          *
-         * @return \PHPOpenSourceSaver\JWTAuth\JWTGuard
+         * @return \Laravel\Passport\Guards\TokenGuard
          * @static
          */
         public static function forgetUser()
         {
-            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $instance */
+            /** @var \Laravel\Passport\Guards\TokenGuard $instance */
             return $instance->forgetUser();
+        }
+
+        /**
+         * Get the user provider used by the guard.
+         *
+         * @return \Illuminate\Contracts\Auth\UserProvider
+         * @static
+         */
+        public static function getProvider()
+        {
+            /** @var \Laravel\Passport\Guards\TokenGuard $instance */
+            return $instance->getProvider();
+        }
+
+        /**
+         * Set the user provider used by the guard.
+         *
+         * @param \Illuminate\Contracts\Auth\UserProvider $provider
+         * @return void
+         * @static
+         */
+        public static function setProvider($provider)
+        {
+            /** @var \Laravel\Passport\Guards\TokenGuard $instance */
+            $instance->setProvider($provider);
         }
 
         /**
@@ -2867,7 +2649,7 @@ namespace Illuminate\Support\Facades {
          */
         public static function macro($name, $macro)
         {
-            \PHPOpenSourceSaver\JWTAuth\JWTGuard::macro($name, $macro);
+            \Laravel\Passport\Guards\TokenGuard::macro($name, $macro);
         }
 
         /**
@@ -2881,7 +2663,7 @@ namespace Illuminate\Support\Facades {
          */
         public static function mixin($mixin, $replace = true)
         {
-            \PHPOpenSourceSaver\JWTAuth\JWTGuard::mixin($mixin, $replace);
+            \Laravel\Passport\Guards\TokenGuard::mixin($mixin, $replace);
         }
 
         /**
@@ -2893,7 +2675,7 @@ namespace Illuminate\Support\Facades {
          */
         public static function hasMacro($name)
         {
-            return \PHPOpenSourceSaver\JWTAuth\JWTGuard::hasMacro($name);
+            return \Laravel\Passport\Guards\TokenGuard::hasMacro($name);
         }
 
         /**
@@ -2904,22 +2686,7 @@ namespace Illuminate\Support\Facades {
          */
         public static function flushMacros()
         {
-            \PHPOpenSourceSaver\JWTAuth\JWTGuard::flushMacros();
-        }
-
-        /**
-         * Dynamically handle calls to the class.
-         *
-         * @param string $method
-         * @param array $parameters
-         * @return mixed
-         * @throws \BadMethodCallException
-         * @static
-         */
-        public static function macroCall($method, $parameters)
-        {
-            /** @var \PHPOpenSourceSaver\JWTAuth\JWTGuard $instance */
-            return $instance->macroCall($method, $parameters);
+            \Laravel\Passport\Guards\TokenGuard::flushMacros();
         }
 
             }

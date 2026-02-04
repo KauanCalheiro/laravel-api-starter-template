@@ -3,9 +3,11 @@
 namespace App\Providers;
 
 use App\Rules\PhoneNumber;
+use Carbon\CarbonInterval;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Passport\Passport;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -45,5 +47,10 @@ class AppServiceProvider extends ServiceProvider
                 return str_replace(':format', $example, $message);
             },
         );
+
+        Passport::tokensExpireIn(CarbonInterval::days(15));
+        Passport::refreshTokensExpireIn(CarbonInterval::days(30));
+        Passport::personalAccessTokensExpireIn(CarbonInterval::months(6));
+        Passport::enablePasswordGrant();
     }
 }

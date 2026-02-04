@@ -14,6 +14,7 @@
         "lab404/laravel-impersonate": "*",
         "laravel/framework": "^12.18.0",
         "laravel/octane": "^2.11",
+        "laravel/passport": "^13.4",
         "laravel/sanctum": "^4.0",
         "laravel/socialite": "^5.20",
         "laravel/telescope": "^5.7",
@@ -81,10 +82,7 @@
         ],
         "reset": [
             "Composer\\Config::disableProcessTimeout",
-            "php artisan db:clear",
-            "php artisan migrate",
-            "php artisan db:seed",
-            "php artisan app:sync-roles-permissions"
+            "php artisan migrate:fresh --seed"
         ],
         "helpers": "php artisan ide-helper:generate -n && php artisan ide-helper:models -n && php artisan ide-helper:meta -n"
     },
