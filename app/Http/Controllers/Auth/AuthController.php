@@ -11,21 +11,21 @@ use App\Http\Resources\JwtTokenResource;
 use App\Models\Auth\Role;
 use App\Models\User;
 use App\Services\Auth\AuthService;
+use App\Services\Jwt\JwtService;
 use App\Services\Validation\FormRequestFactory;
 use Auth;
 use DB;
-use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
     public function login(LoginRequest $request)
     {
         return DB::transaction(function () use ($request) {
-            $token = AuthService::make($request->validated())->handleLogin();
+            $response = AuthService::make($request->validated())->handleLogin();
 
             Auth::user()->setActiveRole();
 
-            return $token;
+            return $response;
         });
     }
 
@@ -43,9 +43,9 @@ class AuthController extends Controller
 
     public function refresh()
     {
-        $token = JWTAuth::setToken(JWTAuth::fromUser(Auth::user()))->refresh();
+        $user = AuthService::authResolver()->user();
 
-        return new JwtTokenResource($token);
+        return JwtService::make($user)->refresh();
     }
 
     public function register(RegisterRequest $request)

@@ -2,7 +2,8 @@
 
 namespace App\Services\Auth;
 
-use App\Contracts\LoginHandlerContract;
+use Illuminate\Auth\AuthManager;
+use PHPOpenSourceSaver\JWTAuth\JWTGuard;
 
 class AuthService
 {
@@ -10,7 +11,7 @@ class AuthService
         'jwt' => JwtLoginService::class,
     ];
 
-    private LoginHandlerContract $loginHandler;
+    private BaseLoginHandlerService $loginHandler;
 
     public function __construct($credentials)
     {
@@ -26,5 +27,10 @@ class AuthService
     public function handleLogin()
     {
         return $this->loginHandler->handleLogin();
+    }
+
+    public static function authResolver(): JWTGuard|AuthManager
+    {
+        return auth();
     }
 }

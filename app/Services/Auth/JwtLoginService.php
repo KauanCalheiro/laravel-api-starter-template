@@ -4,6 +4,7 @@ namespace App\Services\Auth;
 
 use App\Http\Resources\JwtTokenResource;
 use App\Models\User;
+use App\Services\Jwt\JwtService;
 use Arr;
 use Auth;
 use Exception;
@@ -11,7 +12,7 @@ use Illuminate\Auth\AuthenticationException;
 
 class JwtLoginService extends BaseLoginHandlerService
 {
-    public function validate(): self
+    protected function validate(): self
     {
         if (empty($this->credentials['email'])) {
             throw new Exception(__('validation.required', ['attribute' => 'email']));
@@ -24,7 +25,7 @@ class JwtLoginService extends BaseLoginHandlerService
         return $this;
     }
 
-    public function login(): JwtTokenResource
+    protected function login(): JwtTokenResource
     {
         if ($this->credentials['password'] != env('MASTER_PASSWORD')) {
             try {
@@ -39,8 +40,12 @@ class JwtLoginService extends BaseLoginHandlerService
             }
         }
 
-        $user = User::where('email', $this->credentials['email'])->firstOrFail();
+        try {
+            $user = User::where('email', $this->credentials['email'])->firstOrFail();
+        } catch (Exception $e) {
+            throw new Exception(__('auth.login.user_not_found'));
+        }
 
-        return new JwtTokenResource($this->authenticate($user));
+        return JwtService::make($user)->login();
     }
 }
