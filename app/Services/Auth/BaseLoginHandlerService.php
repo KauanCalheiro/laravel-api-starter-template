@@ -7,7 +7,7 @@ use App\Http\Resources\JwtTokenResource;
 use App\Models\User;
 use Auth;
 use Exception;
-use Tymon\JWTAuth\Facades\JWTAuth;
+use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 
 abstract class BaseLoginHandlerService implements LoginHandlerContract
 {

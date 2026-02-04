@@ -11,7 +11,6 @@
     "require": {
         "php": "^8.2",
         "aaronfrancis/fast-paginate": "^2.0",
-        "kamoca/laravel-jwt-database-blacklist": "^1.0",
         "lab404/laravel-impersonate": "*",
         "laravel/framework": "^12.18.0",
         "laravel/octane": "^2.11",
@@ -20,11 +19,11 @@
         "laravel/telescope": "^5.7",
         "laravel/tinker": "^2.9",
         "michaelachrisco/readonly": "^1.0",
+        "php-open-source-saver/jwt-auth": "*",
         "spatie/laravel-activitylog": "^4.10",
         "spatie/laravel-json-api-paginate": "^1.16",
         "spatie/laravel-permission": "^6.10",
-        "spatie/laravel-query-builder": "^6.3",
-        "tymon/jwt-auth": "^2.2"
+        "spatie/laravel-query-builder": "^6.3"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^3.6",

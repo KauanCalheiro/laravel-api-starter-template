@@ -6,9 +6,9 @@ use App\Models\User;
 use Auth;
 use Lab404\Impersonate\Models\Impersonate;
 use Lab404\Impersonate\Services\ImpersonateManager;
+use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
+use PHPOpenSourceSaver\JWTAuth\Payload;
 use RuntimeException;
-use Tymon\JWTAuth\Facades\JWTAuth;
-use Tymon\JWTAuth\Payload;
 
 trait JwtImpersonate
 {
@@ -100,7 +100,7 @@ trait JwtImpersonate
 
     private function getJwtPayload(): Payload
     {
-        /** @var \Tymon\JWTAuth\Payload $payload */
+        /** @var \PHPOpenSourceSaver\JWTAuth\Payload $payload */
         $payload = Auth::payload();
 
         return $payload;

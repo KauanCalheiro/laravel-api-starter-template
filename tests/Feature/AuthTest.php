@@ -5,11 +5,11 @@ namespace Tests\Feature;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 use Tests\Helpers\Auth\JwtApiAuthenticatable;
 use Tests\Helpers\JsonError;
 use Tests\TestCase;
 use Tests\Trait\Authenticatable;
-use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthTest extends TestCase
 {
