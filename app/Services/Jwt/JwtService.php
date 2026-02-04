@@ -43,6 +43,12 @@ class JwtService
         return $this->login();
     }
 
+    public function claims(array $claims): self
+    {
+        $this->auth->claims($claims);
+        return $this;
+    }
+
     protected function refreshToken(): string
     {
         return $this->generateToken(config('jwt.refresh_ttl'));

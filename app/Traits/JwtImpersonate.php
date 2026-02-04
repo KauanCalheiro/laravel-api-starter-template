@@ -2,11 +2,12 @@
 
 namespace App\Traits;
 
+use App\Http\Resources\JwtTokenResource;
 use App\Models\User;
+use App\Services\Jwt\JwtService;
 use Auth;
 use Lab404\Impersonate\Models\Impersonate;
 use Lab404\Impersonate\Services\ImpersonateManager;
-use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 use PHPOpenSourceSaver\JWTAuth\Payload;
 use RuntimeException;
 
@@ -27,7 +28,7 @@ trait JwtImpersonate
         return filled($payload->get($this->getImpersonateKey()));
     }
 
-    public function impersonate(User $to): string
+    public function impersonate(User $to): JwtTokenResource
     {
         if (!$this->canImpersonate()) {
             throw new RuntimeException(__('impersonate.cannot.impersonate'));
@@ -45,16 +46,14 @@ trait JwtImpersonate
             throw new RuntimeException(__('impersonate.already_impersonating'));
         }
 
-        $key = $this->getImpersonateKey();
+        $claims = [
+            $this->getImpersonateKey() => $this->id,
+        ];
 
-        $token = JWTAuth::claims([
-            $key => $this->id,
-        ])->fromUser($to);
-
-        return $token;
+        return JwtService::make($to)->claims($claims)->login();
     }
 
-    public function leaveImpersonation(): string
+    public function leaveImpersonation(): JwtTokenResource
     {
         $user = Auth::user();
 
@@ -72,7 +71,7 @@ trait JwtImpersonate
 
         $impersonator = User::findOrFail($impersonatorId);
 
-        return JWTAuth::fromUser($impersonator);
+        return JwtService::make($impersonator)->login();
     }
 
     private function getImpersonateKey(): string
