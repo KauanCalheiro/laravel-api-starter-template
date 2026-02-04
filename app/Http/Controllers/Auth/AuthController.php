@@ -14,7 +14,7 @@ use App\Services\Auth\AuthService;
 use App\Services\Validation\FormRequestFactory;
 use Auth;
 use DB;
-use Tymon\JWTAuth\Facades\JWTAuth;
+use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 
 class AuthController extends Controller
 {
