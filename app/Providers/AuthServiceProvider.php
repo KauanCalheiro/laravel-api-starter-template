@@ -6,7 +6,6 @@ use App\Guards\JwtCustomGuard;
 use App\Models\User;
 use App\Policies\UserPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Auth;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -17,8 +16,12 @@ class AuthServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->registerPolicies();
+        $this->extendAuthGuard();
+    }
 
-        Auth::extend('jwt-custom', function ($app, $name, array $config) {
+    protected function extendAuthGuard()
+    {
+        $this->app['auth']->extend('jwt-custom', function ($app, $name, array $config) {
             $guard = new JwtCustomGuard(
                 $app['tymon.jwt'],
                 $app['auth']->createUserProvider($config['provider']),
