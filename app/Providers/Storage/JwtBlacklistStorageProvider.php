@@ -3,7 +3,7 @@
 namespace App\Providers\Storage;
 
 use App\Models\JwtToken;
-use PHPOpenSourceSaver\JWTAuth\Contracts\Providers\Storage;
+use Tymon\JWTAuth\Contracts\Providers\Storage;
 
 class JwtBlacklistStorageProvider implements Storage
 {

@@ -9,7 +9,6 @@ cp .env.example .env
 composer install
 php artisan key:generate --force
 php artisan jwt:secret --force
-php artisan jwt:generate-certs --force --algo=rsa --bits=4096 --sha=512
 touch database/database.sqlite
 php artisan migrate:fresh --seed
 composer helpers

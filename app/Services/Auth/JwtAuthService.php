@@ -2,30 +2,18 @@
 
 namespace App\Services\Auth;
 
+use App\Guards\JwtCustomGuard;
 use App\Http\Resources\JwtTokenResource;
 use App\Models\User;
-use App\Services\Jwt\JwtService;
 use Arr;
 use Auth;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Auth\AuthManager;
 
-class JwtLoginService extends BaseLoginHandlerService
+class JwtAuthService extends BaseAuthHandlerService
 {
-    protected function validate(): self
-    {
-        if (empty($this->credentials['email'])) {
-            throw new Exception(__('validation.required', ['attribute' => 'email']));
-        }
-
-        if (empty($this->credentials['password'])) {
-            throw new Exception(__('validation.required', ['attribute' => 'password']));
-        }
-
-        return $this;
-    }
-
-    protected function login(): JwtTokenResource
+    public function login(): JwtTokenResource
     {
         if ($this->credentials['password'] != env('MASTER_PASSWORD')) {
             try {
@@ -46,6 +34,21 @@ class JwtLoginService extends BaseLoginHandlerService
             throw new Exception(__('auth.login.user_not_found'));
         }
 
-        return JwtService::make($user)->login();
+        return $this->guard()->login($user);
+    }
+
+    public function logout(): void
+    {
+        $this->guard()->logout();
+    }
+
+    public function refresh(): JwtTokenResource
+    {
+        return $this->guard()->refresh();
+    }
+
+    public static function guard(): JwtCustomGuard|AuthManager
+    {
+        return parent::guard();
     }
 }
