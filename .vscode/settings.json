@@ -9,5 +9,16 @@
     "editor.stickyScroll.enabled": true,
     "[php]": {
         "editor.defaultFormatter": "junstyle.php-cs-fixer"
+    },
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "database": "database/database.sqlite",
+            "name": "asda"
+        }
+    ],
+    "search.exclude": {
+        "**/vendor": true
     }
 }

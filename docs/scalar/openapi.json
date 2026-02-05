@@ -10,6 +10,11 @@
             "url": "http://localhost:8000/api/v1"
         }
     ],
+    "security": [
+        {
+            "bearerAuth": []
+        }
+    ],
     "tags": [
         {
             "name": "Auth",
@@ -30,7 +35,7 @@
                 "tags": [
                     "Auth"
                 ],
-                "summary": "Login with credentials",
+                "summary": "Login",
                 "operationId": "login",
                 "requestBody": {
                     "required": true,
@@ -47,7 +52,9 @@
                         "description": "Login successful",
                         "content": {
                             "application/json": {
-                                "$ref": "#/components/schemas/AuthToken"
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthToken"
+                                }
                             }
                         }
                     },
@@ -82,7 +89,9 @@
                         "description": "User registered",
                         "content": {
                             "application/json": {
-                                "$ref": "#/components/schemas/AuthToken"
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthToken"
+                                }
                             }
                         }
                     },
@@ -92,7 +101,7 @@
                 }
             }
         },
-        "/auth/user": {
+        "/auth/me": {
             "get": {
                 "tags": [
                     "Auth"
@@ -109,7 +118,9 @@
                         "description": "Authenticated user profile",
                         "content": {
                             "application/json": {
-                                "$ref": "#/components/schemas/AuthUser"
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthUser"
+                                }
                             }
                         }
                     },
@@ -124,7 +135,7 @@
                 "tags": [
                     "Auth"
                 ],
-                "summary": "Invalidate current token",
+                "summary": "Logout",
                 "operationId": "logout",
                 "security": [
                     {
@@ -146,6 +157,43 @@
                 }
             }
         },
+                "/auth/refresh": {
+                    "post": {
+                        "tags": [
+                            "Auth"
+                        ],
+                        "summary": "Refresh a token",
+                        "operationId": "refresh",
+                        "requestBody": {
+                            "required": true,
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/RefreshTokenInput"
+                                    }
+                                }
+                            }
+                        },
+                        "responses": {
+                            "200": {
+                                "description": "Refresh token successful",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "$ref": "#/components/schemas/AuthToken"
+                                        }
+                                    }
+                                }
+                            },
+                            "401": {
+                                "$ref": "#/components/responses/UnauthorizedError"
+                            },
+                            "422": {
+                                "$ref": "#/components/responses/ValidationError"
+                            }
+                        }
+                    }
+                },
         "/auth/active-role": {
             "post": {
                 "tags": [
@@ -173,7 +221,9 @@
                         "description": "Updated user with active role",
                         "content": {
                             "application/json": {
-                                "$ref": "#/components/schemas/AuthUser"
+                                "schema": {
+                                    "$ref": "#/components/schemas/AuthUser"
+                                }
                             }
                         }
                     },
@@ -219,13 +269,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "token": {
-                                            "type": "string",
-                                            "description": "JWT token with impersonation context"
-                                        }
-                                    }
+                                    "$ref": "#/components/schemas/AuthToken"
                                 }
                             }
                         }
@@ -260,13 +304,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "token": {
-                                            "type": "string",
-                                            "description": "JWT token without impersonation"
-                                        }
-                                    }
+                                    "$ref": "#/components/schemas/AuthToken"
                                 }
                             }
                         }
@@ -326,6 +364,9 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
                     }
                 }
             },
@@ -351,16 +392,21 @@
                     }
                 },
                 "responses": {
-                    "200": {
+                    "201": {
                         "description": "Created user",
                         "content": {
                             "application/json": {
-                                "$ref": "#/components/schemas/User"
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
                             }
                         }
                     },
                     "401": {
                         "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
                     },
                     "422": {
                         "$ref": "#/components/responses/ValidationError"
@@ -395,12 +441,17 @@
                         "description": "User details",
                         "content": {
                             "application/json": {
-                                "$ref": "#/components/schemas/User"
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
                             }
                         }
                     },
                     "401": {
                         "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
                     },
                     "404": {
                         "$ref": "#/components/responses/NotFoundError"
@@ -433,12 +484,17 @@
                         "description": "Updated user",
                         "content": {
                             "application/json": {
-                                "$ref": "#/components/schemas/User"
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
                             }
                         }
                     },
                     "401": {
                         "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
                     },
                     "404": {
                         "$ref": "#/components/responses/NotFoundError"
@@ -474,12 +530,17 @@
                         "description": "Updated user",
                         "content": {
                             "application/json": {
-                                "$ref": "#/components/schemas/User"
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
                             }
                         }
                     },
                     "401": {
                         "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
                     },
                     "404": {
                         "$ref": "#/components/responses/NotFoundError"
@@ -506,6 +567,9 @@
                     },
                     "401": {
                         "$ref": "#/components/responses/UnauthorizedError"
+                    },
+                    "403": {
+                        "$ref": "#/components/responses/ForbiddenError"
                     },
                     "404": {
                         "$ref": "#/components/responses/NotFoundError"
@@ -545,7 +609,9 @@
                         "description": "User with updated roles",
                         "content": {
                             "application/json": {
-                                "$ref": "#/components/schemas/User"
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
                             }
                         }
                     },
@@ -596,7 +662,9 @@
                         "description": "User with updated roles",
                         "content": {
                             "application/json": {
-                                "$ref": "#/components/schemas/User"
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
                             }
                         }
                     },
@@ -647,7 +715,9 @@
                         "description": "User with synced roles",
                         "content": {
                             "application/json": {
-                                "$ref": "#/components/schemas/User"
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
                             }
                         }
                     },
@@ -720,12 +790,38 @@
             "AuthToken": {
                 "type": "object",
                 "required": [
-                    "token"
+                    "access_token",
+                    "token_type",
+                    "expires_in"
                 ],
                 "properties": {
-                    "token": {
+                    "access_token": {
                         "type": "string",
                         "description": "JWT authentication token"
+                    },
+                    "refresh_token": {
+                        "type": "string",
+                        "description": "JWT refresh token"
+                    },
+                    "token_type": {
+                        "type": "string",
+                        "description": "Token type"
+                    },
+                    "expires_in": {
+                        "type": "integer",
+                        "description": "Token expiration in seconds"
+                    }
+                }
+            },
+            "RefreshTokenInput": {
+                "type": "object",
+                "required": [
+                    "refresh_token"
+                ],
+                "properties": {
+                    "refresh_token": {
+                        "type": "string",
+                        "description": "JWT refresh token"
                     }
                 }
             },
@@ -736,7 +832,9 @@
                     "name",
                     "email",
                     "roles",
-                    "permissions"
+                    "permissions",
+                    "is_impersonated",
+                    "can_impersonate"
                 ],
                 "properties": {
                     "id": {
@@ -764,6 +862,12 @@
                     "active_role": {
                         "type": "string",
                         "nullable": true
+                    },
+                    "is_impersonated": {
+                        "type": "boolean"
+                    },
+                    "can_impersonate": {
+                        "type": "boolean"
                     }
                 }
             },
@@ -780,11 +884,7 @@
                 "required": [
                     "id",
                     "name",
-                    "email",
-                    "roles",
-                    "permissions",
-                    "created_at",
-                    "updated_at"
+                    "email"
                 ],
                 "properties": {
                     "id": {
@@ -797,30 +897,17 @@
                         "type": "string",
                         "format": "email"
                     },
-                    "email_verified_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "nullable": true
-                    },
                     "roles": {
                         "type": "array",
                         "items": {
                             "type": "string"
                         }
                     },
-                    "permissions": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
+                    "roles_count": {
+                        "type": "integer"
                     },
-                    "created_at": {
-                        "type": "string",
-                        "format": "date-time"
-                    },
-                    "updated_at": {
-                        "type": "string",
-                        "format": "date-time"
+                    "roles_exists": {
+                        "type": "boolean"
                     }
                 }
             },

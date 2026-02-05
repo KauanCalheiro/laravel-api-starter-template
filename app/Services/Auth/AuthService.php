@@ -2,16 +2,15 @@
 
 namespace App\Services\Auth;
 
-use Illuminate\Auth\AuthManager;
-use PHPOpenSourceSaver\JWTAuth\JWTGuard;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 class AuthService
 {
     private const LOGIN_HANDLER = [
-        'jwt' => JwtLoginService::class,
+        'jwt' => JwtAuthService::class,
     ];
 
-    private BaseLoginHandlerService $loginHandler;
+    private BaseAuthHandlerService $loginHandler;
 
     public function __construct($credentials)
     {
@@ -24,13 +23,18 @@ class AuthService
         return new self($credentials);
     }
 
-    public function handleLogin()
+    public function login(): JsonResource
     {
-        return $this->loginHandler->handleLogin();
+        return $this->loginHandler->login();
     }
 
-    public static function authResolver(): JWTGuard|AuthManager
+    public function logout(): void
     {
-        return auth();
+        $this->loginHandler->logout();
+    }
+
+    public function refresh(): JsonResource
+    {
+        return $this->loginHandler->refresh();
     }
 }

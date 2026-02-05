@@ -5,13 +5,14 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ActiveRoleRequest;
 use App\Http\Requests\LoginRequest;
+use App\Http\Requests\LogoutRequest;
+use App\Http\Requests\RefreshTokenRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Resources\AuthUserResource;
 use App\Http\Resources\JwtTokenResource;
 use App\Models\Auth\Role;
 use App\Models\User;
 use App\Services\Auth\AuthService;
-use App\Services\Jwt\JwtService;
 use App\Services\Validation\FormRequestFactory;
 use Auth;
 use DB;
@@ -21,7 +22,7 @@ class AuthController extends Controller
     public function login(LoginRequest $request)
     {
         return DB::transaction(function () use ($request) {
-            $response = AuthService::make($request->validated())->handleLogin();
+            $response = AuthService::make($request->validated())->login();
 
             Auth::user()->setActiveRole();
 
@@ -34,18 +35,16 @@ class AuthController extends Controller
         return new AuthUserResource(Auth::user());
     }
 
-    public function logout()
+    public function logout(LogoutRequest $request)
     {
-        Auth::logout();
+        AuthService::make($request->validated())->logout();
 
         return ['message' => __('auth.logout.success')];
     }
 
-    public function refresh()
+    public function refresh(RefreshTokenRequest $request)
     {
-        $user = AuthService::authResolver()->user();
-
-        return JwtService::make($user)->refresh();
+        return AuthService::make($request->validated())->refresh();
     }
 
     public function register(RegisterRequest $request)
@@ -55,7 +54,7 @@ class AuthController extends Controller
 
             $loginRequest = FormRequestFactory::make(LoginRequest::class, $request->validated());
 
-            return AuthService::make($loginRequest->validated())->handleLogin();
+            return AuthService::make($loginRequest->validated())->login();
         });
     }
 
@@ -70,11 +69,11 @@ class AuthController extends Controller
 
     public function impersonate(User $user)
     {
-        return new JwtTokenResource(Auth::user()->impersonate($user));
+        return new JwtTokenResource(auth()->user()->impersonate($user));
     }
 
     public function unimpersonate()
     {
-        return new JwtTokenResource(Auth::user()->leaveImpersonation());
+        return new JwtTokenResource(auth()->user()->leaveImpersonation());
     }
 }

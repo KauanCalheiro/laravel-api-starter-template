@@ -5,11 +5,11 @@ namespace Tests\Feature;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 use Tests\Helpers\Auth\JwtApiAuthenticatable;
 use Tests\Helpers\JsonError;
 use Tests\TestCase;
 use Tests\Trait\Authenticatable;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class AuthTest extends TestCase
 {
@@ -67,12 +67,14 @@ class AuthTest extends TestCase
 
         $token = $this->generateJwtToken($user);
 
-        $response = $this->withHeaders(['Authorization' => "Bearer {$token}"])
-            ->post(route('auth.refresh'));
+        $response = $this->post(route('auth.refresh'), [
+            'refresh_token' => $token,
+        ]);
 
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'access_token',
+                'refresh_token',
                 'token_type',
                 'expires_in',
             ]);

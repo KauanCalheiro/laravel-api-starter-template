@@ -3,7 +3,7 @@
 namespace Tests\Helpers\Auth;
 
 use App\Models\User;
-use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class JwtApiAuthenticatable extends BaseAuthenticatable
 {

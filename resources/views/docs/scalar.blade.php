@@ -35,7 +35,7 @@
     <script>
         Scalar.createApiReference('#scalar', {
             url: '/docs/api/spec',
-            layout: "classic",
+            layout: "modern",
             theme: "fastify",
             slug: "api-1",
             showToolbar: "never"

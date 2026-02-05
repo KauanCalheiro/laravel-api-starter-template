@@ -2,60 +2,57 @@
 
 namespace App\Providers\Storage;
 
-use App\Models\JwtBlacklist;
-use PHPOpenSourceSaver\JWTAuth\Contracts\Providers\Storage;
-use Str;
+use App\Models\JwtToken;
+use Tymon\JWTAuth\Contracts\Providers\Storage;
 
 class JwtBlacklistStorageProvider implements Storage
 {
     /**
-    * The JWT blacklist model instance.
+    * The JWT jwtToken model instance.
     *
-    * @var JwtBlacklist
+    * @var JwtToken
     */
-    protected $blacklist;
+    protected $jwtToken;
 
     /**
      * Constructor.
      *
-     * @param JwtBlacklist $blacklist
+     * @param JwtToken $jwtToken
      */
-    public function __construct(JwtBlacklist $blacklist)
+    public function __construct(JwtToken $jwtToken)
     {
-        $this->blacklist = $blacklist;
+        $this->jwtToken = $jwtToken;
     }
 
     /**
      * Add a new item into storage.
      *
-     * @param  string  $key
+     * @param  string $key
      * @param  mixed  $value
-     * @param  int  $minutes
+     * @param  int    $minutes
      * @return void
      */
     public function add($key, $value, $minutes)
     {
-        $this->blacklist->create([
-            'key'        => $key,
-            'value'      => $this->toString($value),
-            'expires_at' => now()->addMinutes($minutes),
-        ]);
+        $this->jwtToken->updateOrInsert(
+            ['key' => $key],
+            [
+                'value'      => $value,
+                'expired_at' => now(),
+            ],
+        );
     }
 
     /**
      * Add a new item into storage forever.
      *
      * @param  string  $key
-     * @param  mixed  $value
+     * @param  mixed   $value
      * @return void
      */
     public function forever($key, $value)
     {
-        $this->blacklist->create([
-            'key'        => $key,
-            'value'      => $this->toString($value),
-            'expires_at' => null,
-        ]);
+        $this->add($key, $value, 0);
     }
 
     /**
@@ -66,13 +63,9 @@ class JwtBlacklistStorageProvider implements Storage
      */
     public function get($key)
     {
-        $value = $this->blacklist->where('key', $key)->first()?->value;
-
-        if (is_null($value)) {
-            return null;
-        }
-
-        return $this->fromString($value);
+        return $this->jwtToken->where('key', $key)
+        ->where('expired_at', '<', now())
+        ->first()?->value;
     }
 
     /**
@@ -83,7 +76,7 @@ class JwtBlacklistStorageProvider implements Storage
      */
     public function destroy($key)
     {
-        return $this->blacklist->where('key', $key)->delete();
+        return $this->jwtToken->where('key', $key)->delete();
     }
 
     /**
@@ -93,30 +86,6 @@ class JwtBlacklistStorageProvider implements Storage
      */
     public function flush()
     {
-        $this->blacklist->truncate();
-    }
-
-    /**
-     * Convert the given value to a string.
-     *
-     * @param mixed $value
-     *
-     * @return string
-     */
-    private function toString($value): string
-    {
-        return is_string($value) ? $value : json_encode($value);
-    }
-
-    /**
-     * Convert the given value from a string.
-     *
-     * @param mixed $value
-     *
-     * @return mixed
-     */
-    private function fromString($value): mixed
-    {
-        return Str::isJson($value) ? json_decode($value, true) : $value;
+        $this->jwtToken->truncate();
     }
 }

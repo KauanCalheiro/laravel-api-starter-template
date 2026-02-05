@@ -4,12 +4,12 @@ namespace App\Traits;
 
 use App\Http\Resources\JwtTokenResource;
 use App\Models\User;
-use App\Services\Jwt\JwtService;
+use App\Services\Auth\JwtAuthService;
 use Auth;
 use Lab404\Impersonate\Models\Impersonate;
 use Lab404\Impersonate\Services\ImpersonateManager;
-use PHPOpenSourceSaver\JWTAuth\Payload;
 use RuntimeException;
+use Tymon\JWTAuth\Payload;
 
 trait JwtImpersonate
 {
@@ -50,7 +50,7 @@ trait JwtImpersonate
             $this->getImpersonateKey() => $this->id,
         ];
 
-        return JwtService::make($to)->claims($claims)->login();
+        return JwtAuthService::guard()->claims($claims)->login($to);
     }
 
     public function leaveImpersonation(): JwtTokenResource
@@ -71,7 +71,7 @@ trait JwtImpersonate
 
         $impersonator = User::findOrFail($impersonatorId);
 
-        return JwtService::make($impersonator)->login();
+        return JwtAuthService::guard()->login($impersonator);
     }
 
     private function getImpersonateKey(): string
@@ -99,7 +99,7 @@ trait JwtImpersonate
 
     private function getJwtPayload(): Payload
     {
-        /** @var \PHPOpenSourceSaver\JWTAuth\Payload $payload */
+        /** @var \Tymon\JWTAuth\Payload $payload */
         $payload = Auth::payload();
 
         return $payload;
