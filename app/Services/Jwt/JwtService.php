@@ -39,7 +39,11 @@ class JwtService
 
     public function refresh(): JwtTokenResource
     {
-        $this->auth->invalidate(true);
+        JwtToken::where('user_id', $this->user->id)
+            ->update([
+                'value'      => 'forever',
+                'expired_at' => now(),
+            ]);
 
         return $this->login();
     }
@@ -66,7 +70,6 @@ class JwtService
 
         JwtToken::create([
             'key'        => $this->auth->getPayload()->get('jti'),
-            'value'      => $token,
             'type'       => $type,
             'user_id'    => $this->user->id,
             'expired_at' => now()->addMinutes($ttl)->toDateTimeString(),

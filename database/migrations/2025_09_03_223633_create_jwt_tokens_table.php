@@ -9,10 +9,10 @@ return new class () extends Migration {
     {
         Schema::create('jwt_tokens', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained('users');
             $table->text('key');
             $table->text('value')->nullable();
-            $table->text('type'); // 'access' or 'refresh'
-            $table->foreignId('user_id')->constrained('users');
+            $table->text('type')->comment('access or refresh');
             $table->timestamp('expired_at')->nullable();
             $table->timestamps();
         });
