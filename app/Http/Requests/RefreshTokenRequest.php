@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Rules\RefreshTokenRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class RefreshTokenRequest extends FormRequest
@@ -25,6 +26,11 @@ class RefreshTokenRequest extends FormRequest
     private function jwtRules()
     {
         return [
+            'refresh_token' => [
+                'required',
+                'string',
+                new RefreshTokenRule(),
+            ],
             'driver' => ['in:jwt'],
         ];
     }

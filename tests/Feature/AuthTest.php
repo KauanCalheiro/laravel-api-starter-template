@@ -67,8 +67,9 @@ class AuthTest extends TestCase
 
         $token = $this->generateJwtToken($user);
 
-        $response = $this->withHeaders(['Authorization' => "Bearer {$token}"])
-            ->post(route('auth.refresh'));
+        $response = $this->post(route('auth.refresh'), [
+            'refresh_token' => $token,
+        ]);
 
         $response->assertStatus(200)
             ->assertJsonStructure([

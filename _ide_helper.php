@@ -2480,6 +2480,15 @@ namespace Illuminate\Support\Facades {
         }
 
         /**
+         * @static
+         */
+        public static function claims($claims)
+        {
+            /** @var \App\Guards\JwtCustomGuard $instance */
+            return $instance->claims($claims);
+        }
+
+        /**
          * Get the currently authenticated user.
          *
          * @return \App\Models\User|null
@@ -2603,20 +2612,6 @@ namespace Illuminate\Support\Facades {
             //Method inherited from \Tymon\JWTAuth\JWTGuard 
             /** @var \App\Guards\JwtCustomGuard $instance */
             return $instance->byId($id);
-        }
-
-        /**
-         * Add any custom claims.
-         *
-         * @param array $claims
-         * @return \App\Guards\JwtCustomGuard
-         * @static
-         */
-        public static function claims($claims)
-        {
-            //Method inherited from \Tymon\JWTAuth\JWTGuard 
-            /** @var \App\Guards\JwtCustomGuard $instance */
-            return $instance->claims($claims);
         }
 
         /**

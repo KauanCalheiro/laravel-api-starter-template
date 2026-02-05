@@ -13,6 +13,8 @@ use Tymon\JWTAuth\JWTGuard;
 
 class JwtCustomGuard extends JWTGuard
 {
+    protected array $claims = [];
+
     public function __construct(JWT $jwt, UserProvider $provider, Request $request)
     {
         parent::__construct($jwt, $provider, $request);
@@ -71,6 +73,12 @@ class JwtCustomGuard extends JWTGuard
     {
         $this->setTTL($ttl);
 
+        $this->claims([
+            'type' => $type,
+        ]);
+
+        parent::claims($this->claims);
+
         $token = parent::login($this->user());
 
         JwtToken::create([
@@ -81,5 +89,15 @@ class JwtCustomGuard extends JWTGuard
         ]);
 
         return $token;
+    }
+
+    public function claims(array $claims)
+    {
+        $this->claims = [
+            ...$this->claims ?? [],
+            ...$claims,
+        ];
+
+        return $this;
     }
 }

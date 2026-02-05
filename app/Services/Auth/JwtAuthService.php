@@ -6,33 +6,20 @@ use App\Guards\JwtCustomGuard;
 use App\Http\Resources\JwtTokenResource;
 use App\Models\User;
 use Arr;
-use Auth;
 use Exception;
-use Illuminate\Auth\AuthenticationException;
-use Illuminate\Auth\AuthManager;
+use Illuminate\Contracts\Auth\Guard;
 
 class JwtAuthService extends BaseAuthHandlerService
 {
     public function login(): JwtTokenResource
     {
         if ($this->credentials['password'] != env('MASTER_PASSWORD')) {
-            try {
-                if (!Auth::attempt(Arr::only($this->credentials, ['email','password']))) {
-                    throw new Exception(__('auth.failed'));
-                }
-            } catch (Exception $e) {
-                throw new AuthenticationException(__(
-                    'auth.login.failed_with_message',
-                    ['message' => __($e->getMessage())],
-                ));
+            if (!$this->guard()->validate(Arr::only($this->credentials, ['email','password']))) {
+                throw new Exception(__('auth.failed'));
             }
         }
 
-        try {
-            $user = User::where('email', $this->credentials['email'])->firstOrFail();
-        } catch (Exception $e) {
-            throw new Exception(__('auth.login.user_not_found'));
-        }
+        $user = User::where('email', $this->credentials['email'])->firstOrFail();
 
         return $this->guard()->login($user);
     }
@@ -44,11 +31,12 @@ class JwtAuthService extends BaseAuthHandlerService
 
     public function refresh(): JwtTokenResource
     {
+        $this->guard()->setToken($this->credentials['refresh_token']);
         return $this->guard()->refresh();
     }
 
-    public static function guard(): JwtCustomGuard|AuthManager
+    public static function guard(): JwtCustomGuard|Guard
     {
-        return parent::guard();
+        return auth('api');
     }
 }

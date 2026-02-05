@@ -157,35 +157,43 @@
                 }
             }
         },
-        "/auth/refresh": {
-            "post": {
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "Refresh a token",
-                "operationId": "refresh",
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Refresh token successful",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/AuthToken"
+                "/auth/refresh": {
+                    "post": {
+                        "tags": [
+                            "Auth"
+                        ],
+                        "summary": "Refresh a token",
+                        "operationId": "refresh",
+                        "requestBody": {
+                            "required": true,
+                            "content": {
+                                "application/json": {
+                                    "schema": {
+                                        "$ref": "#/components/schemas/RefreshTokenInput"
+                                    }
                                 }
                             }
+                        },
+                        "responses": {
+                            "200": {
+                                "description": "Refresh token successful",
+                                "content": {
+                                    "application/json": {
+                                        "schema": {
+                                            "$ref": "#/components/schemas/AuthToken"
+                                        }
+                                    }
+                                }
+                            },
+                            "401": {
+                                "$ref": "#/components/responses/UnauthorizedError"
+                            },
+                            "422": {
+                                "$ref": "#/components/responses/ValidationError"
+                            }
                         }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/UnauthorizedError"
                     }
-                }
-            }
-        },
+                },
         "/auth/active-role": {
             "post": {
                 "tags": [
@@ -802,6 +810,18 @@
                     "expires_in": {
                         "type": "integer",
                         "description": "Token expiration in seconds"
+                    }
+                }
+            },
+            "RefreshTokenInput": {
+                "type": "object",
+                "required": [
+                    "refresh_token"
+                ],
+                "properties": {
+                    "refresh_token": {
+                        "type": "string",
+                        "description": "JWT refresh token"
                     }
                 }
             },
