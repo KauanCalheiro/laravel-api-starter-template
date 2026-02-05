@@ -53,12 +53,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/AuthToken"
-                                        }
-                                    }
+                                    "$ref": "#/components/schemas/AuthToken"
                                 }
                             }
                         }
@@ -95,12 +90,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/AuthToken"
-                                        }
-                                    }
+                                    "$ref": "#/components/schemas/AuthToken"
                                 }
                             }
                         }
@@ -129,12 +119,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/AuthUser"
-                                        }
-                                    }
+                                    "$ref": "#/components/schemas/AuthUser"
                                 }
                             }
                         }
@@ -190,12 +175,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/AuthToken"
-                                        }
-                                    }
+                                    "$ref": "#/components/schemas/AuthToken"
                                 }
                             }
                         }
@@ -234,12 +214,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/AuthUser"
-                                        }
-                                    }
+                                    "$ref": "#/components/schemas/AuthUser"
                                 }
                             }
                         }
@@ -286,12 +261,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/AuthToken"
-                                        }
-                                    }
+                                    "$ref": "#/components/schemas/AuthToken"
                                 }
                             }
                         }
@@ -326,12 +296,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/AuthToken"
-                                        }
-                                    }
+                                    "$ref": "#/components/schemas/AuthToken"
                                 }
                             }
                         }
@@ -424,12 +389,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/User"
-                                        }
-                                    }
+                                    "$ref": "#/components/schemas/User"
                                 }
                             }
                         }
@@ -474,12 +434,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/User"
-                                        }
-                                    }
+                                    "$ref": "#/components/schemas/User"
                                 }
                             }
                         }
@@ -522,12 +477,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/User"
-                                        }
-                                    }
+                                    "$ref": "#/components/schemas/User"
                                 }
                             }
                         }
@@ -573,12 +523,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/User"
-                                        }
-                                    }
+                                    "$ref": "#/components/schemas/User"
                                 }
                             }
                         }
@@ -657,12 +602,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/User"
-                                        }
-                                    }
+                                    "$ref": "#/components/schemas/User"
                                 }
                             }
                         }
@@ -715,12 +655,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/User"
-                                        }
-                                    }
+                                    "$ref": "#/components/schemas/User"
                                 }
                             }
                         }
@@ -773,12 +708,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/components/schemas/User"
-                                        }
-                                    }
+                                    "$ref": "#/components/schemas/User"
                                 }
                             }
                         }
@@ -882,7 +812,9 @@
                     "name",
                     "email",
                     "roles",
-                    "permissions"
+                    "permissions",
+                    "is_impersonated",
+                    "can_impersonate"
                 ],
                 "properties": {
                     "id": {
