@@ -4,7 +4,9 @@ namespace Tests\Feature;
 
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Services\Auth\JwtAuthService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Request;
 use Tests\Helpers\Auth\JwtApiAuthenticatable;
 use Tests\Helpers\JsonError;
 use Tests\TestCase;
@@ -65,10 +67,10 @@ class AuthTest extends TestCase
     {
         $user = User::first();
 
-        $token = $this->generateJwtToken($user);
+        $resource = JwtAuthService::guard()->login($user)->toArray(new Request());
 
         $response = $this->post(route('auth.refresh'), [
-            'refresh_token' => $token,
+            'refresh_token' => $resource['refresh_token'],
         ]);
 
         $response->assertStatus(200)
@@ -79,7 +81,8 @@ class AuthTest extends TestCase
                 'expires_in',
             ]);
 
-        $this->assertNotSame($token, $response->json()['access_token']);
+        $this->assertNotSame($resource['access_token'], $response->json()['access_token']);
+        $this->assertNotSame($resource['refresh_token'], $response->json()['refresh_token']);
     }
 
     public function test_retorna_dados_do_usuario_autenticado()

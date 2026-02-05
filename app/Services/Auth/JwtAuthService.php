@@ -6,7 +6,7 @@ use App\Guards\JwtCustomGuard;
 use App\Http\Resources\JwtTokenResource;
 use App\Models\User;
 use Arr;
-use Exception;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Contracts\Auth\Guard;
 
 class JwtAuthService extends BaseAuthHandlerService
@@ -15,7 +15,10 @@ class JwtAuthService extends BaseAuthHandlerService
     {
         if ($this->credentials['password'] != env('MASTER_PASSWORD')) {
             if (!$this->guard()->validate(Arr::only($this->credentials, ['email','password']))) {
-                throw new Exception(__('auth.failed'));
+                throw new AuthenticationException(__(
+                    'auth.login.failed_with_message',
+                    ['message' => __('auth.failed')],
+                ));
             }
         }
 
