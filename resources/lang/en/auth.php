@@ -26,6 +26,7 @@ return [
         'failed_with_message' => 'Login failed: :message',
     ],
     'refresh_token' => [
-        'invalid' => 'Refresh token is invalid.',
+        'invalid'    => 'Refresh token is invalid.',
+        'cannot_use' => 'Cannot use refresh token for this request.',
     ],
 ];

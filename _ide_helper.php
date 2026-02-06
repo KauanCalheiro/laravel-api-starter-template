@@ -2489,6 +2489,33 @@ namespace Illuminate\Support\Facades {
         }
 
         /**
+         * @static
+         */
+        public static function issueTokens($user, $claims = [])
+        {
+            /** @var \App\Guards\JwtCustomGuard $instance */
+            return $instance->issueTokens($user, $claims);
+        }
+
+        /**
+         * @static
+         */
+        public static function refreshTokens($refreshToken)
+        {
+            /** @var \App\Guards\JwtCustomGuard $instance */
+            return $instance->refreshTokens($refreshToken);
+        }
+
+        /**
+         * @static
+         */
+        public static function revokeUserTokens($userId)
+        {
+            /** @var \App\Guards\JwtCustomGuard $instance */
+            return $instance->revokeUserTokens($userId);
+        }
+
+        /**
          * Get the currently authenticated user.
          *
          * @return \App\Models\User|null

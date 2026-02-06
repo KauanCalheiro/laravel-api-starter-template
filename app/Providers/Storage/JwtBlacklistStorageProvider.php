@@ -2,26 +2,14 @@
 
 namespace App\Providers\Storage;
 
-use App\Models\JwtToken;
+use App\Auth\Jwt\Contracts\TokenRepository;
 use Tymon\JWTAuth\Contracts\Providers\Storage;
 
 class JwtBlacklistStorageProvider implements Storage
 {
-    /**
-    * The JWT jwtToken model instance.
-    *
-    * @var JwtToken
-    */
-    protected $jwtToken;
-
-    /**
-     * Constructor.
-     *
-     * @param JwtToken $jwtToken
-     */
-    public function __construct(JwtToken $jwtToken)
-    {
-        $this->jwtToken = $jwtToken;
+    public function __construct(
+        protected readonly TokenRepository $tokenRepository,
+    ) {
     }
 
     /**
@@ -31,16 +19,10 @@ class JwtBlacklistStorageProvider implements Storage
      * @param  mixed  $value
      * @param  int    $minutes
      * @return void
-     */
+    */
     public function add($key, $value, $minutes)
     {
-        $this->jwtToken->updateOrInsert(
-            ['key' => $key],
-            [
-                'value'      => $value,
-                'expired_at' => now(),
-            ],
-        );
+        $this->tokenRepository->revokeByJti($key);
     }
 
     /**
@@ -49,7 +31,7 @@ class JwtBlacklistStorageProvider implements Storage
      * @param  string  $key
      * @param  mixed   $value
      * @return void
-     */
+    */
     public function forever($key, $value)
     {
         $this->add($key, $value, 0);
@@ -63,9 +45,7 @@ class JwtBlacklistStorageProvider implements Storage
      */
     public function get($key)
     {
-        return $this->jwtToken->where('key', $key)
-        ->where('expired_at', '<', now())
-        ->first()?->value;
+        return $this->tokenRepository->isRevoked($key) ? 'forever' : null;
     }
 
     /**
@@ -76,7 +56,9 @@ class JwtBlacklistStorageProvider implements Storage
      */
     public function destroy($key)
     {
-        return $this->jwtToken->where('key', $key)->delete();
+        $this->tokenRepository->revokeByJti($key);
+
+        return true;
     }
 
     /**
@@ -86,6 +68,5 @@ class JwtBlacklistStorageProvider implements Storage
      */
     public function flush()
     {
-        $this->jwtToken->truncate();
     }
 }

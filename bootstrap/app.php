@@ -2,6 +2,7 @@
 
 use App\Exceptions\ApiExceptionHandler;
 use App\Exceptions\TelescopeUnauthenticatedHandler;
+use App\Http\Middleware\BlockRefreshTokenMiddleware;
 use App\Http\Middleware\ForceJsonResponse;
 use App\Http\Middleware\GuestRedirectHandler;
 use App\Http\Middleware\ImpersonationTelescopeMiddleware;
@@ -23,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->redirectGuestsTo(GuestRedirectHandler::class);
         $middleware->api([
             ForceJsonResponse::class,
+            BlockRefreshTokenMiddleware::class,
             ImpersonationTelescopeMiddleware::class,
         ]);
     })

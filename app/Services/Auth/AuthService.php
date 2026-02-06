@@ -2,20 +2,20 @@
 
 namespace App\Services\Auth;
 
+use App\Auth\Jwt\Contracts\AuthHandler;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class AuthService
 {
-    private const LOGIN_HANDLER = [
-        'jwt' => JwtAuthService::class,
-    ];
-
-    private BaseAuthHandlerService $loginHandler;
+    private AuthHandler $loginHandler;
 
     public function __construct($credentials)
     {
-        $handlerClass       = self::LOGIN_HANDLER[$credentials['driver']];
-        $this->loginHandler = new $handlerClass($credentials);
+        $handlers = config('auth_jwt.handlers');
+
+        $handlerClass = $handlers[$credentials['driver']] ?? $handlers['jwt'];
+
+        $this->loginHandler = app()->make($handlerClass, ['credentials' => $credentials]);
     }
 
     public static function make($credentials): self

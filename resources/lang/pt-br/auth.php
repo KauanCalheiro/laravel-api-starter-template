@@ -26,6 +26,7 @@ return [
         'failed_with_message' => 'Falha ao fazer login: :message',
     ],
     'refresh_token' => [
-        'invalid' => 'Token de atualização é inválido.',
+        'invalid'    => 'Token de atualização é inválido.',
+        'cannot_use' => 'Não é possível usar o token de atualização para esta solicitação.',
     ],
 ];

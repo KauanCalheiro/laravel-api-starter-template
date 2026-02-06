@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+use App\Providers\Storage\JwtBlacklistStorageProvider;
+
 return [
     /*
     |--------------------------------------------------------------------------
@@ -290,6 +292,6 @@ return [
         |
         */
 
-        'storage' => Tymon\JWTAuth\Providers\Storage\Illuminate::class,
+        'storage' => App\Providers\Storage\JwtBlacklistStorageProvider::class,
     ],
 ];

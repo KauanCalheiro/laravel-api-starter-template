@@ -2,21 +2,28 @@
 
 namespace App\Guards;
 
+use App\Auth\Jwt\Contracts\ClaimsProvider;
+use App\Auth\Jwt\Contracts\TokenIssuer;
+use App\Auth\Jwt\Contracts\TokenRepository;
 use App\Http\Resources\JwtTokenResource;
-use App\Models\JwtToken;
-use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Tymon\JWTAuth\JWT;
 use Tymon\JWTAuth\JWTGuard;
 
-class JwtCustomGuard extends JWTGuard
+class JwtCustomGuard extends JWTGuard implements TokenIssuer
 {
     protected array $claims = [];
 
-    public function __construct(JWT $jwt, UserProvider $provider, Request $request)
-    {
+    public function __construct(
+        JWT $jwt,
+        UserProvider $provider,
+        Request $request,
+        private readonly TokenRepository $tokenRepository,
+        private readonly ClaimsProvider $claimsProvider,
+    ) {
         parent::__construct($jwt, $provider, $request);
     }
 
@@ -52,9 +59,11 @@ class JwtCustomGuard extends JWTGuard
 
     protected function invalidateUserTokens(): self
     {
-        $user = User::find($this->user()->getAuthIdentifier());
+        $userId = $this->user()?->getAuthIdentifier();
 
-        JwtToken::invalidadeUserTokens($user);
+        if ($userId) {
+            $this->tokenRepository->revokeByUser($userId);
+        }
 
         return $this;
     }
@@ -73,20 +82,24 @@ class JwtCustomGuard extends JWTGuard
     {
         $this->setTTL($ttl);
 
-        $this->claims([
+        $mergedClaims = [
+            ...$this->claimsProvider->forUser($this->user()),
+            ...$this->claims ?? [],
             'type' => $type,
-        ]);
+        ];
 
-        parent::claims($this->claims);
+        parent::claims($mergedClaims);
 
         $token = parent::login($this->user());
 
-        JwtToken::create([
-            'key'        => $this->getPayload()->get('jti'),
-            'type'       => $type,
-            'user_id'    => $this->user()->id,
-            'expired_at' => now()->addMinutes($ttl)->toDateTimeString(),
-        ]);
+        $payload = $this->getPayload();
+
+        $this->tokenRepository->save(
+            $payload->get('jti'),
+            $this->user()->getAuthIdentifier(),
+            $type,
+            Carbon::now()->addMinutes($ttl),
+        );
 
         return $token;
     }
@@ -99,5 +112,22 @@ class JwtCustomGuard extends JWTGuard
         ];
 
         return $this;
+    }
+
+    public function issueTokens(JWTSubject $user, array $claims = []): JwtTokenResource
+    {
+        return $this->claims($claims)->login($user);
+    }
+
+    public function refreshTokens(string $refreshToken): JwtTokenResource
+    {
+        $this->setToken($refreshToken);
+
+        return $this->refresh();
+    }
+
+    public function revokeUserTokens(int $userId): void
+    {
+        $this->tokenRepository->revokeByUser($userId);
     }
 }
