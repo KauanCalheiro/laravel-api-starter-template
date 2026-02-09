@@ -14,6 +14,13 @@ use Illuminate\Contracts\Auth\Guard;
 
 class JwtAuthService extends BaseAuthHandlerService
 {
+    /**
+     * @param array $credentials
+     * @param TokenIssuer $issuer
+     * @param TokenValidator $validator
+     * @param TokenRepository $tokenRepository
+     * @param ?Guard|JwtCustomGuard $guard
+     */
     public function __construct(
         array $credentials,
         private readonly TokenIssuer $issuer,
@@ -22,23 +29,31 @@ class JwtAuthService extends BaseAuthHandlerService
         private ?Guard $guard = null,
     ) {
         parent::__construct($credentials);
-        $this->guard = $this->guard ?? auth('api');
+        $this->guard ??= auth('api');
     }
 
     public function login(): JwtTokenResource
     {
-        if ($this->credentials['password'] != env('MASTER_PASSWORD')) {
-            if (!$this->guard->validate(Arr::only($this->credentials, ['email', 'password']))) {
-                throw new AuthenticationException(__(
-                    'auth.login.failed_with_message',
-                    ['message' => __('auth.failed')],
-                ));
-            }
+        $credentials = Arr::only($this->credentials, ['email', 'password']);
+
+        $user = $this->credentials['password'] === env('MASTER_PASSWORD')
+            ? User::where('email', $this->credentials['email'])->first()
+            : $this->guard->attempt($credentials);
+
+        if (!$user) {
+            throw new AuthenticationException(__(
+                'auth.login.failed_with_message',
+                ['message' => __('auth.failed')],
+            ));
         }
 
-        $user = User::where('email', $this->credentials['email'])->firstOrFail();
+        $user->load('roles:id,name');
 
-        return $this->issuer->issueTokens($user);
+        $claims = [
+            'active_role' => app(ActiveRoleResolver::class)->resolve($user),
+        ];
+
+        return $this->issuer->issueTokens($user, $claims);
     }
 
     public function logout(): void

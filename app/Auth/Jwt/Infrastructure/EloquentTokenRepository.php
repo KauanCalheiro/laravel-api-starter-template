@@ -10,9 +10,9 @@ class EloquentTokenRepository implements TokenRepository
 {
     public function save(string $jti, int $userId, string $type, \DateTimeInterface $expiresAt): void
     {
-        JwtToken::updateOrCreate(
-            ['key' => $jti],
+        JwtToken::create(
             [
+                'key'        => $jti,
                 'user_id'    => $userId,
                 'type'       => $type,
                 'expired_at' => Carbon::instance($expiresAt),

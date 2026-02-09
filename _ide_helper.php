@@ -2516,6 +2516,20 @@ namespace Illuminate\Support\Facades {
         }
 
         /**
+         * Attempt to authenticate the user using the given credentials and return the token.
+         *
+         * @param array $credentials
+         * @param bool $login
+         * @return bool|\App\Guards\Authenticatable
+         * @static
+         */
+        public static function attempt($credentials = [], $login = true)
+        {
+            /** @var \App\Guards\JwtCustomGuard $instance */
+            return $instance->attempt($credentials, $login);
+        }
+
+        /**
          * Get the currently authenticated user.
          *
          * @return \App\Models\User|null
@@ -2554,21 +2568,6 @@ namespace Illuminate\Support\Facades {
             //Method inherited from \Tymon\JWTAuth\JWTGuard 
             /** @var \App\Guards\JwtCustomGuard $instance */
             return $instance->validate($credentials);
-        }
-
-        /**
-         * Attempt to authenticate the user using the given credentials and return the token.
-         *
-         * @param array $credentials
-         * @param bool $login
-         * @return bool|string
-         * @static
-         */
-        public static function attempt($credentials = [], $login = true)
-        {
-            //Method inherited from \Tymon\JWTAuth\JWTGuard 
-            /** @var \App\Guards\JwtCustomGuard $instance */
-            return $instance->attempt($credentials, $login);
         }
 
         /**

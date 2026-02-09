@@ -7,6 +7,7 @@ use App\Auth\Jwt\Contracts\TokenIssuer;
 use App\Auth\Jwt\Contracts\TokenRepository;
 use App\Http\Resources\JwtTokenResource;
 use Carbon\Carbon;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Contracts\JWTSubject;
@@ -129,5 +130,23 @@ class JwtCustomGuard extends JWTGuard implements TokenIssuer
     public function revokeUserTokens(int $userId): void
     {
         $this->tokenRepository->revokeByUser($userId);
+    }
+
+    /**
+     * Attempt to authenticate the user using the given credentials and return the token.
+     *
+     * @param  array  $credentials
+     * @param  bool  $login
+     * @return bool|Authenticatable
+     */
+    public function attempt(array $credentials = [], $login = true)
+    {
+        $this->lastAttempted = $user = $this->provider->retrieveByCredentials($credentials);
+
+        if ($this->hasValidCredentials($user, $credentials)) {
+            return $login ? $user : true;
+        }
+
+        return false;
     }
 }

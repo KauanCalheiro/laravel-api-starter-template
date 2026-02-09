@@ -9,8 +9,6 @@
  * file that was distributed with this source code.
  */
 
-use App\Providers\Storage\JwtBlacklistStorageProvider;
-
 return [
     /*
     |--------------------------------------------------------------------------
@@ -130,7 +128,7 @@ return [
     |
     */
 
-    'algo' => env('JWT_ALGO', Tymon\JWTAuth\Providers\JWT\Provider::ALGO_HS512),
+    'algo' => env('JWT_ALGO', Tymon\JWTAuth\Providers\JWT\Provider::ALGO_HS256),
 
     /*
     |--------------------------------------------------------------------------

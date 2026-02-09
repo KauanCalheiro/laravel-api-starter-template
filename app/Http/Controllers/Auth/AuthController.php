@@ -10,24 +10,19 @@ use App\Http\Requests\RefreshTokenRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Resources\AuthUserResource;
 use App\Http\Resources\JwtTokenResource;
-use App\Models\Auth\Role;
 use App\Models\User;
 use App\Services\Auth\AuthService;
+use App\Services\Auth\ActiveRoleResolver;
+use App\Services\Auth\JwtAuthService;
 use App\Services\Validation\FormRequestFactory;
 use Auth;
-use DB;
+use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
     public function login(LoginRequest $request)
     {
-        return DB::transaction(function () use ($request) {
-            $response = AuthService::make($request->validated())->login();
-
-            Auth::user()->setActiveRole();
-
-            return $response;
-        });
+        return AuthService::make($request->validated())->login();
     }
 
     public function me()
@@ -60,11 +55,11 @@ class AuthController extends Controller
 
     public function activeRole(ActiveRoleRequest $request)
     {
-        $role = Role::where('name', $request->input('role'))->firstOrFail();
+        $user = Auth::user()->loadMissing('roles');
 
-        Auth::user()->setActiveRole($role);
+        $activeRole = app(ActiveRoleResolver::class)->resolve($user, $request->string('role')->toString());
 
-        return $this->me();
+        return JwtAuthService::guard()->issueTokens($user, ['active_role' => $activeRole]);
     }
 
     public function impersonate(User $user)

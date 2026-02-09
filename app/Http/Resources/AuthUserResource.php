@@ -14,13 +14,24 @@ class AuthUserResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $this->resource->loadMissing([
+            'roles' => fn ($query) => $query->select('roles.id', 'roles.name'),
+            'roles.permissions' => fn ($query) => $query->select('permissions.id', 'permissions.name'),
+        ]);
+
+        $permissions = $this->roles
+            ->flatMap->permissions
+            ->pluck('name')
+            ->unique()
+            ->values();
+
         return [
             'id'              => $this->id,
             'name'            => $this->name,
             'email'           => $this->email,
             'active_role'     => $this->active_role,
             'roles'           => $this->roles->pluck('name'),
-            'permissions'     => $this->roles->pluck('permissions')->flatten()->pluck('name'),
+            'permissions'     => $permissions,
             'is_impersonated' => $this->isImpersonated(),
             'can_impersonate' => $this->canImpersonate(),
         ];
