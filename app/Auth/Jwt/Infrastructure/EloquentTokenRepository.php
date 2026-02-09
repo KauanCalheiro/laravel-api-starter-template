@@ -4,16 +4,13 @@ namespace App\Auth\Jwt\Infrastructure;
 
 use App\Auth\Jwt\Contracts\TokenRepository;
 use App\Models\JwtToken;
+use Cache;
 use Carbon\Carbon;
 
 class EloquentTokenRepository implements TokenRepository
 {
-    private array $isRevokedStory = [];
-
     public function save(string $jti, int $userId, string $type, \DateTimeInterface $expiresAt): void
     {
-        $this->isRevokedStory[$jti] = true;
-
         JwtToken::create(
             [
                 'key'        => $jti,
@@ -26,7 +23,7 @@ class EloquentTokenRepository implements TokenRepository
 
     public function revokeByJti(string $jti): void
     {
-        $this->isRevokedStory[$jti] = true;
+        Cache::put($jti, true, now()->addMinutes(1));
 
         JwtToken::where('key', $jti)->update([
             'expired_at' => now(),
@@ -36,8 +33,6 @@ class EloquentTokenRepository implements TokenRepository
 
     public function revokeByUser(int $userId): void
     {
-        $this->isRevokedStory[$userId] = true;
-
         JwtToken::where('user_id', $userId)->update([
             'expired_at' => now(),
             'value'      => 'forever',
@@ -46,15 +41,15 @@ class EloquentTokenRepository implements TokenRepository
 
     public function isRevoked(string $jti): bool
     {
-        if (array_key_exists($jti, $this->isRevokedStory)) {
-            return $this->isRevokedStory[$jti];
+        if (Cache::has($jti)) {
+            return Cache::get($jti);
         }
 
         $exists = JwtToken::where('key', $jti)
             ->where('expired_at', '<=', now())
             ->exists();
 
-        $this->isRevokedStory[$jti] = $exists;
+        Cache::add($jti, $exists, now()->addMinutes(1));
 
         return $exists;
     }
