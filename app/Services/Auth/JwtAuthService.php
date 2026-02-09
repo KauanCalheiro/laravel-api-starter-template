@@ -49,11 +49,7 @@ class JwtAuthService extends BaseAuthHandlerService
 
         $user->load('roles:id,name');
 
-        $claims = [
-            'active_role' => app(ActiveRoleResolver::class)->resolve($user),
-        ];
-
-        return $this->issuer->issueTokens($user, $claims);
+        return $this->guard->login($user);
     }
 
     public function logout(): void

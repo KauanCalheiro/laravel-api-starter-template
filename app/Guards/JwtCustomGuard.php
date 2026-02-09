@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use Tymon\JWTAuth\JWT;
 use Tymon\JWTAuth\JWTGuard;
+use Tymon\JWTAuth\Payload;
 
 class JwtCustomGuard extends JWTGuard implements TokenIssuer
 {
@@ -24,15 +25,19 @@ class JwtCustomGuard extends JWTGuard implements TokenIssuer
         Request $request,
         private readonly TokenRepository $tokenRepository,
         private readonly ClaimsProvider $claimsProvider,
+        private ?Payload $refreshToken = null,
+        private ?Payload $accessToken = null
     ) {
         parent::__construct($jwt, $provider, $request);
     }
 
-    public function login(JWTSubject $user): JwtTokenResource
+    public function login(JWTSubject $user, bool $invalidateTokens = true): JwtTokenResource
     {
         parent::setUser($user);
 
-        $this->invalidateUserTokens();
+        if ($invalidateTokens) {
+            $this->invalidateUserTokens();
+        }
 
         $refresh_token = $this->refreshToken();
         $access_token  = $this->accessToken();
@@ -55,10 +60,10 @@ class JwtCustomGuard extends JWTGuard implements TokenIssuer
     {
         $this->invalidateUserTokens();
 
-        return $this->login($this->user());
+        return $this->login($this->user(), false);
     }
 
-    protected function invalidateUserTokens(): self
+    public function invalidateUserTokens(): self
     {
         $userId = $this->user()?->getAuthIdentifier();
 
@@ -71,29 +76,39 @@ class JwtCustomGuard extends JWTGuard implements TokenIssuer
 
     protected function refreshToken(): string
     {
-        return $this->generateToken(config('jwt.refresh_ttl'), 'refresh');
+        $this->claims = [];
+
+        return $this->claims([
+            'type' => 'refresh',
+        ])->generateToken(config('jwt.refresh_ttl'), 'refresh');
     }
 
     protected function accessToken(): string
     {
-        return $this->generateToken(config('jwt.ttl'), 'access');
+        $this->claims = [];
+
+        return $this->claims([
+            'refresh_jti' => $this->refreshToken?->get('jti'),
+            'type'        => 'access',
+            ...$this->claimsProvider->forUser($this->user()),
+        ])->generateToken(config('jwt.ttl'), 'access');
     }
 
     protected function generateToken(int $ttl, string $type): string
     {
         $this->setTTL($ttl);
 
-        $mergedClaims = [
-            ...$this->claimsProvider->forUser($this->user()),
-            ...$this->claims ?? [],
-            'type' => $type,
-        ];
-
-        parent::claims($mergedClaims);
+        parent::claims($this->claims);
 
         $token = parent::login($this->user());
 
         $payload = $this->getPayload();
+
+        match ($type) {
+            'refresh' => $this->refreshToken = $payload,
+            'access'  => $this->accessToken  = $payload,
+            default   => null,
+        };
 
         $this->tokenRepository->save(
             $payload->get('jti'),
@@ -105,7 +120,7 @@ class JwtCustomGuard extends JWTGuard implements TokenIssuer
         return $token;
     }
 
-    public function claims(array $claims)
+    public function claims(array $claims): self
     {
         $this->claims = [
             ...$this->claims ?? [],

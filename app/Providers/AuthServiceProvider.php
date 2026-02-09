@@ -2,11 +2,11 @@
 
 namespace App\Providers;
 
+use App\Auth\Jwt\Application\JwtTokenValidator;
 use App\Auth\Jwt\Contracts\ClaimsProvider;
 use App\Auth\Jwt\Contracts\TokenIssuer;
 use App\Auth\Jwt\Contracts\TokenRepository;
 use App\Auth\Jwt\Contracts\TokenValidator;
-use App\Auth\Jwt\Application\JwtTokenValidator;
 use App\Auth\Jwt\Infrastructure\DefaultClaimsProvider;
 use App\Auth\Jwt\Infrastructure\EloquentTokenRepository;
 use App\Guards\JwtCustomGuard;

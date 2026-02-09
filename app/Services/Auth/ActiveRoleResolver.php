@@ -11,16 +11,12 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 
 class ActiveRoleResolver
 {
-    public function resolve(User $user, ?string $preferredRole = null): string
+    public function resolve(User $user): string
     {
         $roleNames = $this->getRoleNames($user);
 
-        if ($preferredRole) {
-            if (!$roleNames->contains($preferredRole)) {
-                throw new RuntimeException('User does not have the requested role.');
-            }
-
-            return $preferredRole;
+        if ($user->getActiveRole() && $roleNames->contains($user->getActiveRole())) {
+            return $user->getActiveRole();
         }
 
         $tokenRole = $this->fromToken();
