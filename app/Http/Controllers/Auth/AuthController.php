@@ -9,10 +9,8 @@ use App\Http\Requests\LogoutRequest;
 use App\Http\Requests\RefreshTokenRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Resources\AuthUserResource;
-use App\Http\Resources\JwtTokenResource;
 use App\Models\User;
 use App\Services\Auth\AuthService;
-use App\Services\Auth\ActiveRoleResolver;
 use App\Services\Auth\JwtAuthService;
 use App\Services\Validation\FormRequestFactory;
 use Auth;
@@ -56,19 +54,8 @@ class AuthController extends Controller
     public function activeRole(ActiveRoleRequest $request)
     {
         $user = Auth::user()->loadMissing('roles');
+        $user->setActiveRole($request->string('role')->toString());
 
-        $activeRole = app(ActiveRoleResolver::class)->resolve($user, $request->string('role')->toString());
-
-        return JwtAuthService::guard()->issueTokens($user, ['active_role' => $activeRole]);
-    }
-
-    public function impersonate(User $user)
-    {
-        return new JwtTokenResource(auth()->user()->impersonate($user));
-    }
-
-    public function unimpersonate()
-    {
-        return new JwtTokenResource(auth()->user()->leaveImpersonation());
+        return JwtAuthService::guard()->login($user);
     }
 }

@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Traits\HasActiveRole;
-use App\Traits\JwtImpersonate;
 use App\Traits\LogsAll;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -21,7 +20,6 @@ class User extends Authenticatable implements JWTSubject
     use LogsAll;
     use HasActiveRole;
     use SoftDeletes;
-    use JwtImpersonate;
 
     protected $table = 'users';
 
@@ -39,6 +37,8 @@ class User extends Authenticatable implements JWTSubject
         'updated_at',
         'deleted_at',
     ];
+
+    private ?string $active_role = null;
 
     protected function password(): Attribute
     {
@@ -62,13 +62,15 @@ class User extends Authenticatable implements JWTSubject
         return [];
     }
 
-    public function canImpersonate(): bool
+    public function getActiveRole(): ?string
     {
-        return true;
+        return $this->active_role;
     }
 
-    public function canBeImpersonated(): bool
+    public function setActiveRole(?string $role): self
     {
-        return true;
+        $this->active_role = $role;
+
+        return $this;
     }
 }

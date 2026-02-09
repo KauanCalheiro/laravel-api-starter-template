@@ -15,7 +15,7 @@ class AuthUserResource extends JsonResource
     public function toArray(Request $request): array
     {
         $this->resource->loadMissing([
-            'roles' => fn ($query) => $query->select('roles.id', 'roles.name'),
+            'roles'             => fn ($query) => $query->select('roles.id', 'roles.name'),
             'roles.permissions' => fn ($query) => $query->select('permissions.id', 'permissions.name'),
         ]);
 
@@ -26,14 +26,12 @@ class AuthUserResource extends JsonResource
             ->values();
 
         return [
-            'id'              => $this->id,
-            'name'            => $this->name,
-            'email'           => $this->email,
-            'active_role'     => $this->active_role,
-            'roles'           => $this->roles->pluck('name'),
-            'permissions'     => $permissions,
-            'is_impersonated' => $this->isImpersonated(),
-            'can_impersonate' => $this->canImpersonate(),
+            'id'          => $this->id,
+            'name'        => $this->name,
+            'email'       => $this->email,
+            'active_role' => $this->active_role,
+            'roles'       => $this->roles->pluck('name'),
+            'permissions' => $permissions,
         ];
     }
 }
