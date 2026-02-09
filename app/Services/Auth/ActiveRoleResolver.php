@@ -5,6 +5,7 @@ namespace App\Services\Auth;
 use App\Enums\RoleEnum;
 use App\Models\User;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use RuntimeException;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
@@ -54,15 +55,21 @@ class ActiveRoleResolver
 
     private function getRoleNames(User $user): Collection
     {
-        $roles = $user->relationLoaded('roles')
-            ? $user->roles
-            : $user->roles()->select('name')->get();
+        return Cache::remember(
+            "user:{$user->id}:role-names",
+            now()->addMinute(),
+            function () use ($user) {
+                $roles = $user->relationLoaded('roles')
+                    ? $user->roles
+                    : $user->roles()->select('name')->get();
 
-        if ($roles->isEmpty()) {
-            throw new RuntimeException('User has no roles assigned.');
-        }
+                if ($roles->isEmpty()) {
+                    throw new RuntimeException('User has no roles assigned.');
+                }
 
-        return $roles->pluck('name');
+                return $roles->pluck('name');
+            },
+        );
     }
 
     private function strongestRole(Collection $roleNames): string
